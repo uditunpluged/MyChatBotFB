@@ -1,0 +1,25 @@
+{
+  "name": "MyChatBotServer",
+  "version": "1.0.0",
+  "description": "A really stupid meaningless bot.",
+  "main": "app.js",
+  "scripts": {
+    "test": "haha no",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:uditunpluged/MyChatBotFB.git"
+  },
+  "author": "Udit Kapahi <udit@phantasmist.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uditunpluged/MyChatBotFB/issues"
+  },
+  "homepage": "https://github.com/uditunpluged/MyChatBotFB",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "request": "^2.74.0"
+  }
+}
