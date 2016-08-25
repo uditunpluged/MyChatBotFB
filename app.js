@@ -38,20 +38,20 @@ function searchResponse(senderID,messageFromUser){
 function searchForPayload(senderID,message){
   console.log("Searching for payload "+message);
   rootRef.child('quick_replies').on("value", function(snapshot) {
-    console.log(snapshot.val());
     var arrayFound = snapshot.val().filter(function(item) {
       if(item.title == message){
-        sendTypingOn(senderID);
         sleep.sleep(5);
         console.log("Sending Payload "+item.payload);
-
         fetchList(senderID,item.payload);
+        sleep.sleep(10);
+        sendPriceRangeButtons(senderID);
         return item.payload;
       }else{
-        sendTypingOff(senderID);
         return 'not found';
       }
     });
+    console.log(arrayFound);
+
   }, function (errorObject) {
     console.log("The read failed: " + errorObject.code);
   });
@@ -89,6 +89,7 @@ function getUserNameForPersonalization(uid){
       firstName=obj.first_name;
       sendTextMessage(uid, "Hi "+firstName+" ! I am Soni, your personal advisor. \nI am here to help you find joy.");
       console.log("userName "+obj.first_name);
+
       sendYesNoQuickReplyButtons(uid);
     }else {
       console.error("Get User Details Error : "+response);
@@ -223,7 +224,7 @@ function receivedMessage(event) {
 
   if (message.hasOwnProperty('quick_reply')) {
       if(message.quick_reply.payload!='Yes-Property') {
-          searchForPayload(senderID,message);
+          searchForPayload(senderID,messageText);
       };
   }
 
@@ -368,6 +369,45 @@ function sendCitySelectionButtons(recipientId){
         content_type:"text",
         title:"Noida",
         payload:"4"
+      }]
+    }
+  };
+  // console.log(messageData);
+  callSendAPI(messageData);
+}
+
+function sendPriceRangeButtons(recipientId){
+  console.log('Sending price range buttons to '+recipientId);
+  var messageData = {
+    recipient: {
+      id: recipientId
+    },
+    message: {
+      text:"what's the price range you are looking for?",
+      quick_replies:[{
+        content_type:"text",
+        title:"0l - 30L",
+        payload:"0l - 30L"
+      },
+      {
+        content_type:"text",
+        title:"30l - 70L",
+        payload:"30l - 70L"
+      },
+      {
+        content_type:"text",
+        title:"70l - 1.5 Cr",
+        payload:"70l - 1.5 Cr"
+      },
+      {
+        content_type:"text",
+        title:"1.5 Cr - 5 Cr",
+        payload:"1.5 Cr - 5 Cr"
+      },
+      {
+        content_type:"text",
+        title:"5Cr +",
+        payload:"5Cr +"
       }]
     }
   };
@@ -520,17 +560,18 @@ function searchData(text){
 });
 }
 
-function fetchList(senderID,cityId){
+function fetchList(senderID,cityId,filterData){
   request( {
-      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectinfocus',
+      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectlist',
       method: 'POST',
       json: {
         "cityId": ""+cityId,
-        "pageno":"1"
+        "pageno":"1",
+        "mobFilterData":filterData
       }
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
-          // console.log(body) // Show the HTML for the Google homepage.
+          console.log(body) // Show the HTML for the Google homepage.
           parseJson(body,senderID);
         }
       });
