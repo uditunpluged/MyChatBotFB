@@ -15,6 +15,9 @@ var config = {
   firebase.initializeApp(config);
   var rootRef = firebase.database().ref();
 
+//Store User response
+
+
 // Attach an asynchronous callback to read the data at our posts reference
 function searchResponse(senderID,messageFromUser){
   rootRef.child('questions').on("value", function(snapshot) {
@@ -43,8 +46,8 @@ function searchForPayload(senderID,message){
         sleep.sleep(5);
         console.log("Sending Payload "+item.payload);
         fetchList(senderID,item.payload);
-        sleep.sleep(10);
-        sendPriceRangeButtons(senderID);
+        // sleep.sleep(10);
+        // sendPriceRangeButtons(senderID);
         return item.payload;
       }else{
         return 'not found';
@@ -63,7 +66,8 @@ app.get('/ping',function(req, res){
   sendGenericMessage("test")
 });
 app.use(bodyParser.json());
-//TO VERIFY
+
+//TO LET FACEBOOK VERIFY OUR HOOK
 app.get('/webhook', function(req, res) {
   if (req.query['hub.mode'] === 'subscribe' &&
       req.query['hub.verify_token'] === VALIDATION_TOKEN) {
@@ -74,6 +78,8 @@ app.get('/webhook', function(req, res) {
     res.sendStatus(403);
   }
 });
+
+// SET GREETING AS WELL AS PERSISTENT MENU
 setGreetingText();
 setPersistentMenu();
 
@@ -220,10 +226,14 @@ function receivedMessage(event) {
 
   // You may get a text or attachment but not both
   var messageText = message.text;
-  var messageAttachments = message.attachments;
+  var messageAttachments = message.attachments
+
+  var userResponses=[];
 
   if (message.hasOwnProperty('quick_reply')) {
       if(message.quick_reply.payload!='Yes-Property') {
+          userResponses.push(messageText);
+          console.log("USER RESPONSES :"+userResponses);
           searchForPayload(senderID,messageText);
       };
   }
@@ -560,14 +570,13 @@ function searchData(text){
 });
 }
 
-function fetchList(senderID,cityId,filterData){
+function fetchList(senderID,cityId){
   request( {
-      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectlist',
+      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectinfocus',
       method: 'POST',
       json: {
         "cityId": ""+cityId,
-        "pageno":"1",
-        "mobFilterData":filterData
+        "pageno":"1"
       }
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
