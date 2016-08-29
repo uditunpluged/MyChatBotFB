@@ -5,7 +5,7 @@ var PAGE_ACCESS_TOKEN='EAAQ0rqoF1uABAIs4pYBVkZCySs4AHvF1SLtykll6B5NKdmx93mJmBWgO
 var VALIDATION_TOKEN='phantasmist';
 var request=require('request');
 var firebase = require("firebase");
-var sleep = require('sleep');
+var HashMap=require('hashmap');
 var config = {
     apiKey: "AIzaSyDyoFVDbLmbvnp1t-QXfO4MzgefGgEaysE",
     authDomain: "chatbot-d601d.firebaseapp.com",
@@ -16,49 +16,32 @@ var config = {
   var rootRef = firebase.database().ref();
 
 //Store User response
-
+var usersMap = new HashMap();
+var quickRepliesArray=[];
+// var vMap=new HashMap();
+// for (var i=0;i<5;i++){
+// var sMap=new HashMap();
+//   sMap.set('projectMaxPrice','item.payload.projectMaxPrice'+i);
+//   sMap.set('projectMinPrice','item.payload.projectMinPrice'+i);
+//   sMap.set('cityId','messagePayload'+i);
+//   vMap.set("12345"+i,sMap);
+// }
+// console.log("Smap JSON "+JSON.stringify(vMap));
+// if (vMap.has("123451")) {
+//   console.log("==========================================================================");
+//   console.log("HAS TRUE "+JSON.stringify(vMap.get("123451").get("projectMaxPrice")));
+// }
+// // var userDetailsMap=new HashMap();
+// userDetailsMap.set("cityId","1");
+// userDetailsMap.set("projectMaxPrice","20000000");
+// userDetailsMap.set("projectMinPrice","20000000");
+// usersMap.set("udit",userDetailsMap);
+// console.log("USER MAP"+usersMap);
+// console.log("Get UDit Object",usersMap.get("udit"));
+// usersMap.get("udit").set("cityId","29");
+// console.log("Get UDit Object",usersMap.get("udit"));
 
 // Attach an asynchronous callback to read the data at our posts reference
-function searchResponse(senderID,messageFromUser){
-  rootRef.child('questions').on("value", function(snapshot) {
-    var arrayFound = snapshot.val().filter(function(item) {
-      if(item.userMessage == messageFromUser){
-        sendTypingOn(senderID);
-        console.log(item.answer);
-        sendTextMessage(senderID,item.answer);
-        sendTypingOff(senderID);
-        return item.answer;
-      }else{
-        sendTypingOff(senderID);
-        return 'not found';
-      }
-    });
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
-}
-
-function searchForPayload(senderID,message){
-  console.log("Searching for payload "+message);
-  rootRef.child('quick_replies').on("value", function(snapshot) {
-    var arrayFound = snapshot.val().filter(function(item) {
-      if(item.title == message){
-        sleep.sleep(5);
-        console.log("Sending Payload "+item.payload);
-        fetchList(senderID,item.payload);
-        // sleep.sleep(10);
-        // sendPriceRangeButtons(senderID);
-        return item.payload;
-      }else{
-        return 'not found';
-      }
-    });
-    console.log(arrayFound);
-
-  }, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-  });
-}
 
 // Test
 app.get('/ping',function(req, res){
@@ -82,6 +65,70 @@ app.get('/webhook', function(req, res) {
 // SET GREETING AS WELL AS PERSISTENT MENU
 setGreetingText();
 setPersistentMenu();
+quickReplies();
+
+function searchResponse(senderID,messageFromUser){
+  rootRef.child('questions').on("value", function(snapshot) {
+    var arrayFound = snapshot.val().filter(function(item) {
+      if(item.userMessage == messageFromUser){
+        console.log(item.answer);
+        return item.answer;
+      }else{
+        return 'not found';
+      }
+    });
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+}
+
+function quickReplies(){
+  rootRef.child('quick_replies').on("value", function(snapshot) {
+    quickRepliesArray=snapshot.val();
+    console.log("QUICKREPLIES ====>"+quickRepliesArray);
+
+  }, function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
+  });
+}
+
+function searchForPayload(senderID,message,messagePayload){
+  console.log("Searching for payload "+message);
+
+  // rootRef.child('quick_replies').on("value", function(snapshot) {
+    var arrayFound = quickRepliesArray.filter(function(item) {
+      if(item.title == message){
+
+        if (item.payload.hasOwnProperty('projectMaxPrice') && item.payload.hasOwnProperty('projectMinPrice')) {
+          var newMap=new HashMap();
+          newMap.set('projectMaxPrice',item.payload.projectMaxPrice);
+          newMap.set('projectMinPrice',item.payload.projectMinPrice);
+          newMap.set('cityId',""+messagePayload);
+          usersMap.set(senderID,newMap);
+          // usersMap.set(senderID).set('projectMaxPrice',item.payload.projectMaxPrice);
+          // usersMap.set(senderID).set('projectMinPrice',item.payload.projectMinPrice);
+          // usersMap.set(senderID).set('cityId',messagePayload);
+          console.log("Sending Payload "+JSON.stringify(usersMap));
+          if (usersMap.has(senderID)) {
+            console.log("Fetching user DDetails:"+JSON.stringify(usersMap));
+            console.log("max Price : "+JSON.stringify(usersMap.get(senderID).get("projectMaxPrice")));
+            console.log("min Price : "+JSON.stringify(usersMap.get(senderID).get("projectMinPrice")));
+            console.log("cityId : "+usersMap.get(senderID).get("cityId"));
+
+              fetchList(senderID,usersMap.get(senderID).get("cityId"),usersMap.get(senderID).get("projectMaxPrice"),usersMap.get(senderID).get("projectMinPrice"));
+          }
+          sendTextMessage(senderID,"o kidda bai");
+
+      }else if(!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice')){
+          console.log("CITY ID",item.payload);
+          sendPriceRangeButtons(senderID,item.payload);
+      }
+
+      }else{
+        // return 'not found';
+      }
+    });
+}
 
 function getUserNameForPersonalization(uid){
   var url="https://graph.facebook.com/v2.6/"+uid+"?access_token="+PAGE_ACCESS_TOKEN;
@@ -93,9 +140,10 @@ function getUserNameForPersonalization(uid){
     if (!error && response.statusCode == 200) {
       var obj = JSON.parse(body);
       firstName=obj.first_name;
-      sendTextMessage(uid, "Hi "+firstName+" ! I am Soni, your personal advisor. \nI am here to help you find joy.");
-      console.log("userName "+obj.first_name);
+      // sendTextMessage(uid, "Hi "+firstName+" ! I am Soni, your personal advisor. \nI am here to help you find joy.");
 
+      usersMap.set(uid,"");
+      console.log("userName "+obj.first_name);
       sendYesNoQuickReplyButtons(uid);
     }else {
       console.error("Get User Details Error : "+response);
@@ -148,7 +196,7 @@ function setPersistentMenu(){
 };
   setThread(jsonObject);
 }
-
+// SET THREAD
 function setThread(jsonObject){
     request({
       uri: 'https://graph.facebook.com/v2.6/me/thread_settings?access_token='+PAGE_ACCESS_TOKEN,
@@ -168,7 +216,7 @@ function setThread(jsonObject){
         //   recipientId);
         // }
       } else {
-        console.error("Error : "+response);
+        console.error("Set Thread Error : "+response.statusCode);
       }
     });
   }
@@ -196,7 +244,7 @@ app.post('/webhook', function (req, res) {
         } else if (messagingEvent.postback) {
           receivedPostback(messagingEvent);
         }else if (messagingEvent.read) {
-          receivedMessageRead(messagingEvent);
+          // receivedMessageRead(messagingEvent);
         } else {
           console.log("Webhook received unknown messagingEvent: ", messagingEvent);
         }
@@ -234,8 +282,15 @@ function receivedMessage(event) {
       if(message.quick_reply.payload!='Yes-Property') {
           userResponses.push(messageText);
           console.log("USER RESPONSES :"+userResponses);
-          searchForPayload(senderID,messageText);
-      };
+          searchForPayload(senderID,messageText,message.quick_reply.payload);
+      }
+      if(message.quick_reply.payload =='Yes-Property') {
+          // userResponses.push(messageText);
+          // console.log("USER RESPONSES :"+userResponses);
+          // searchForPayload(senderID,messageText);
+          sendCitySelectionButtons(senderID);
+
+      }
   }
 
   if (messageText) {
@@ -260,23 +315,24 @@ function receivedMessage(event) {
         break;
 
       case 'receipt':
-        sendReceiptMessage(senderID);
+        // sendReceiptMessage(senderID);
         break;
       case 'read receipt':
-        sendReadReceipt(senderID);
+        // sendReadReceipt(senderID);
         break;
 
       case 'typing on':
-        sendTypingOn(senderID);
+        // sendTypingOn(senderID);
         break;
 
       case 'typing off':
-        sendTypingOff(senderID);
+        // sendTypingOff(senderID);
         break;
-      case 'Yes':
-          if(message.quick_reply.payload=='Yes-Property') {
-              sendCitySelectionButtons(senderID);
-          }
+      // case 'Yes':
+      //     if(message.quick_reply.payload =='Yes-Property') {
+      //         sendCitySelectionButtons(senderID);
+      //     }
+      //     break;
       default:
         searchResponse(senderID, messageText);
     }
@@ -285,7 +341,7 @@ function receivedMessage(event) {
   }
 }
 
-
+// SEND MESSAGE
 function callSendAPI(messageData) {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -302,11 +358,11 @@ function callSendAPI(messageData) {
         console.log("Successfully sent message with id %s to recipient %s",
           messageId, recipientId);
       } else {
-      console.log("Successfully called Send API for recipient %s",
-        recipientId);
+      console.log("Successfully called Send API for recipient %s with message %s",
+        recipientId,JSON.stringify(messageData));
       }
     } else {
-      console.error("Error : "+response.message);
+      console.error("Error : "+response.statusCode);
     }
   });
 }
@@ -324,6 +380,7 @@ function sendTextMessage(recipientId, messageText) {
   callSendAPI(messageData);
 }
 
+// SEND YES NO BUTTONS
 function sendYesNoQuickReplyButtons(recipientId){
   var messageData = {
     recipient: {
@@ -347,6 +404,7 @@ function sendYesNoQuickReplyButtons(recipientId){
   callSendAPI(messageData);
 }
 
+//SEND CITY SELECTION BUTTONS
 function sendCitySelectionButtons(recipientId){
   console.log('Sending city buutons to '+recipientId);
   var messageData = {
@@ -386,42 +444,33 @@ function sendCitySelectionButtons(recipientId){
   callSendAPI(messageData);
 }
 
-function sendPriceRangeButtons(recipientId){
+//SEND PRICE RANGE BUTTONS
+function sendPriceRangeButtons(recipientId,cityId){
   console.log('Sending price range buttons to '+recipientId);
   var messageData = {
     recipient: {
       id: recipientId
     },
     message: {
-      text:"what's the price range you are looking for?",
+      text:"what is the price range you are looking for?",
       quick_replies:[{
         content_type:"text",
         title:"0l - 30L",
-        payload:"0l - 30L"
+        payload:""+cityId
       },
       {
         content_type:"text",
         title:"30l - 70L",
-        payload:"30l - 70L"
+        payload:""+cityId
       },
       {
         content_type:"text",
-        title:"70l - 1.5 Cr",
-        payload:"70l - 1.5 Cr"
-      },
-      {
-        content_type:"text",
-        title:"1.5 Cr - 5 Cr",
-        payload:"1.5 Cr - 5 Cr"
-      },
-      {
-        content_type:"text",
-        title:"5Cr +",
-        payload:"5Cr +"
+        title:"70l - 1.5Cr",
+        payload:""+cityId
       }]
     }
   };
-  // console.log(messageData);
+  console.log("Price range message"+JSON.stringify(messageData));
   callSendAPI(messageData);
 }
 
@@ -548,18 +597,18 @@ function sendTypingOn(recipientId) {
  * Turn typing indicator off
  *
  */
-function sendTypingOff(recipientId) {
-  console.log("Turning typing indicator off");
-
-  var messageData = {
-    recipient: {
-      id: recipientId
-    },
-    sender_action: "typing_off"
-  };
-
-  callSendAPI(messageData);
-}
+// function sendTypingOff(recipientId) {
+//   console.log("Turning typing indicator off");
+//
+//   var messageData = {
+//     recipient: {
+//       id: recipientId
+//     },
+//     sender_action: "typing_off"
+//   };
+//
+//   callSendAPI(messageData);
+// }
 
 // my logic
 function searchData(text){
@@ -570,13 +619,17 @@ function searchData(text){
 });
 }
 
-function fetchList(senderID,cityId){
+function fetchList(senderID,cityId,maxPrice,minPrice){
   request( {
-      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectinfocus',
+      uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectlist',
       method: 'POST',
       json: {
         "cityId": ""+cityId,
-        "pageno":"1"
+        "pageno":"1",
+        "mobFilterData":{
+          "projectMaxPrice":maxPrice,
+          "projectMinPrice":minPrice
+        }
       }
     }, function (error, response, body) {
         if (!error && response.statusCode == 200) {
