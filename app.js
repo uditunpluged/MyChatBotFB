@@ -22,7 +22,7 @@ var rootRef = firebase.database().ref();
 //Store User response
 var usersMap = new HashMap();
 var quickRepliesArray = [];
-
+var quickAnswersArray = [];
 // Test
 app.get('/ping', function(req, res) {
     fetchList("tezt");
@@ -51,20 +51,18 @@ app.get('/webhook', function(req, res) {
 setGreetingText();
 setPersistentMenu();
 quickReplies();
+quickAnswersArrayFetch();
+// searchResponse("uk", "looking for property in Gurgaon");
+// searchResponse("uk", "apartment");
 
-function searchResponse(senderID, messageFromUser) {
+
+function quickAnswersArrayFetch() {
     rootRef.child('questions').on("value", function(snapshot) {
-        var arrayFound = snapshot.val().filter(function(item) {
-            if (item.userMessage == messageFromUser) {
-                console.log(item.answer);
-                return item.answer;
-            } else {
-                return 'not found';
-            }
+            quickAnswersArray = snapshot.val();
+        },
+        function(errorObject) {
+            console.log("The read failed: " + errorObject.code);
         });
-    }, function(errorObject) {
-        console.log("The read failed: " + errorObject.code);
-    });
 }
 
 function quickReplies() {
@@ -77,10 +75,37 @@ function quickReplies() {
     });
 }
 
+function searchForAnswers(senderID, messageFromUser) {
+    var searchArray = quickAnswersArray.filter(function(item) {
+        var res = messageFromUser.split(" ");
+        var shouldReply = false;
+        for (var i = 0; i < res.length; i++) {
+
+            if (item.userMessage.indexOf(res[i]) !== -1) {
+                shouldReply = true;
+            } else {
+
+            }
+        }
+        if (shouldReply) {
+            if (item.hasOwnProperty('methodType')) {
+                if (item.methodType == 'search') {
+                    sendTextMessage(senderID, "Searching");
+                }
+
+            } else {
+                sendTextMessage(senderID, item.answer);
+                shouldReply = false;
+            }
+        }
+
+    });
+}
+
+
 function searchForPayload(senderID, message, messagePayload) {
     console.log("Searching for payload " + message);
 
-    // rootRef.child('quick_replies').on("value", function(snapshot) {
     var arrayFound = quickRepliesArray.filter(function(item) {
         if (item.title == message) {
 
@@ -90,9 +115,6 @@ function searchForPayload(senderID, message, messagePayload) {
                 newMap.set('projectMinPrice', item.payload.projectMinPrice);
                 newMap.set('cityId', "" + messagePayload);
                 usersMap.set(senderID, newMap);
-                // usersMap.set(senderID).set('projectMaxPrice',item.payload.projectMaxPrice);
-                // usersMap.set(senderID).set('projectMinPrice',item.payload.projectMinPrice);
-                // usersMap.set(senderID).set('cityId',messagePayload);
                 console.log("Sending Payload " + JSON.stringify(usersMap));
                 if (usersMap.has(senderID)) {
                     console.log("Fetching user DDetails:" + JSON.stringify(usersMap));
@@ -108,9 +130,7 @@ function searchForPayload(senderID, message, messagePayload) {
                 sendPriceRangeButtons(senderID, item.payload);
             }
 
-        } else {
-            // return 'not found';
-        }
+        } else {}
     });
 }
 
@@ -317,7 +337,8 @@ function receivedMessage(event) {
                 //     }
                 //     break;
             default:
-                searchResponse(senderID, messageText);
+                searchForAnswers(senderID, messageText);
+                break;
         }
     } else if (messageAttachments) {
         sendTextMessage(senderID, "Message with attachment received");
@@ -584,13 +605,57 @@ function sendTypingOn(recipientId) {
 // }
 
 // my logic
-function searchData(text) {
-    request('http://www.squareyards.com/sqycore/query?q=1&wt=json&rows=5&fq=' + text + '&sort=category+asc', function(error, response, body) {
+function searchData(senderID, cityId, text) {
+    request({
+        uri: 'http://api.squareyards.com/SquareYards/site/city/dse',
+        method: 'POST',
+        json: {
+            "city": 13,
+            "userQuery": "i am looking for 2 bhk projects in"
+        }
+    }, function(error, response, body) {
         if (!error && response.statusCode == 200) {
             console.log(body) // Show the HTML for the Google homepage.
         }
     });
 }
+
+function parseSearchResponse(body, senderID) {
+    var results = [];
+    for (var i = 0; i < body.projectList.length; i++) {
+        results.push({
+            title: body.projectList[i].projectName,
+            subtitle: body.projectList[i].lowCost + " - " + body.projectList[i].highCost,
+            item_url: body.projectList[i].projectImage,
+            image_url: body.projectList[i].projectImage,
+            buttons: [{
+                type: "web_url",
+                url: body.projectList[i].projectImage,
+                title: "Open Web URL"
+            }],
+        });
+
+    }
+
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements: results
+                }
+            }
+        }
+    };
+    console.log(messageData);
+    callSendAPI(messageData);
+
+}
+
 
 function fetchList(senderID, cityId, maxPrice, minPrice) {
     request({
@@ -625,6 +690,10 @@ function parseJson(body, recipientId) {
                 type: "web_url",
                 url: body.projectList[i].projectImage,
                 title: "Open Web URL"
+            }, {
+                type: "postback",
+                title: "Interested",
+                payload: "" + body.projectList[i].projectName
             }],
         });
 

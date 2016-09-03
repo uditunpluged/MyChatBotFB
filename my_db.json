@@ -1,0 +1,109 @@
+{
+  "questions" : [ {
+    "answer" : "Hi! \nHow can I assist you?",
+    "methodType":"hi",
+    "userMessage" : "Hi!Hello! hi , hello ,howdy "
+  }, {
+    "answer" : "Sure, I will be happy to assist you regarding your query on property search in that location. \nPlease type the name of your desired location, I'll try searching for you",
+    "userMessage" : "looking property BHK apartment flat home house plot villa penthouse well occupied move possession advanced mid early new "
+  }, {
+    "answer" : "",
+    "methodType":"search",
+    "userMessage" : "delhi gurgaon faridabad"
+  }, {
+    "answer" : "Now choose your preferred location from below",
+    "userMessage" : "Yes-Property"
+  }, {
+    "answer" : "Sir please gaali mat do. Aisa to mat karo yaar.",
+    "userMessage" : "fuck bc mc bhenchod maa k loday madarchod chutia "
+  } ],
+  "quick_replies" : [ {
+    "content_type" : "text",
+    "payload" : "Yes-Property",
+    "title" : "Yes"
+  }, {
+    "content_type" : "text",
+    "payload" : "No-Property",
+    "title" : "No"
+  }, {
+    "content_type" : "text",
+    "payload" : "1",
+    "title" : "Gurgaon"
+  }, {
+    "content_type" : "text",
+    "payload" : "17",
+    "title" : "Kolkata"
+  }, {
+    "content_type" : "text",
+    "payload" : "13",
+    "title" : "Mumbai"
+  }, {
+    "content_type" : "text",
+    "payload" : "10",
+    "title" : "Banglore"
+  }, {
+    "content_type" : "text",
+    "payload" : "4",
+    "title" : "Noida"
+  }, {
+    "content_type" : "text",
+    "payload" : "12",
+    "title" : "Pune"
+  }, {
+    "content_type" : "text",
+    "payload" : "14",
+    "title" : "Chennai"
+  }, {
+    "content_type" : "text",
+    "payload" : "16",
+    "title" : "Ahmedabad"
+  }, {
+    "content_type" : "text",
+    "payload" : "3",
+    "title" : "Faridabad"
+  }, {
+    "content_type" : "text",
+    "payload" : "9",
+    "title" : "Ghaziabad"
+  }, {
+    "content_type" : "text",
+    "payload" : "15",
+    "title" : "Hyderabad"
+  }, {
+    "content_type" : "text",
+    "payload" : "2",
+    "title" : "Delhi"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "3000000",
+      "projectMinPrice" : "0"
+    },
+    "title" : "0l - 30L"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "7000000",
+      "projectMinPrice" : "3000000"
+    },
+    "title" : "30l - 70L"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "7000000",
+      "projectMinPrice" : "15000000"
+    },
+    "title" : "70l - 1.5Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "15000000",
+      "projectMinPrice" : "50000000"
+    },
+    "title" : "1.5l - 5Cr"
+  } ],
+  "useranswers" : {
+    "cityId" : "",
+    "pageno" : "1"
+  }
+}
