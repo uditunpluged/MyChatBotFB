@@ -90,7 +90,7 @@ function searchForAnswers(senderID, messageFromUser) {
         if (shouldReply) {
             if (item.hasOwnProperty('methodType')) {
                 if (item.methodType == 'search') {
-                    sendTextMessage(senderID, "Searching");
+                    sendTextMessage(senderID, item.answer);
                 }
 
             } else {
