@@ -80,16 +80,33 @@ function searchForAnswers(senderID, messageFromUser) {
         var res = messageFromUser.split(" ");
         var shouldReply = false;
         for (var i = 0; i < res.length; i++) {
+            if (item.userMessage.match(res[i])) {
+                var userMessageTokens = item.userMessage.split(" ");
+                for (var j = 0; j < userMessageTokens.length; j++) {
+                    console.log("" + userMessageTokens[j] + " and " + res[i]);
+                    if (userMessageTokens[j] === res[i]) {
+                        shouldReply = true;
+                    } else {
 
-            if (item.userMessage.indexOf(res[i]) !== -1) {
-                shouldReply = true;
+                    }
+                }
             } else {
 
             }
         }
         if (shouldReply) {
             if (item.hasOwnProperty('methodType')) {
-                if (item.methodType == 'search') {
+                if (item.methodType === 'search') {
+                    sendTextMessage(senderID, item.answer);
+                    setTimeout(function() {
+                        sendCitySelectionButtons(senderID);
+                    }, 2000);
+                }
+                if (item.methodType === 'hi') {
+                    sendTextMessage(senderID, item.answer);
+                }
+
+                if (item.methodType === 'generic') {
                     sendTextMessage(senderID, item.answer);
                 }
 
@@ -125,9 +142,13 @@ function searchForPayload(senderID, message, messagePayload) {
                     fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"));
                 }
 
-            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice')) {
+            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other") {
                 console.log("CITY ID", item.payload);
                 sendPriceRangeButtons(senderID, item.payload);
+            } else if (item.payload === 'other') {
+                console.log("CITY ID", item.payload);
+                // sendPriceRangeButtons(senderID, item.payload);
+                sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.")
             }
 
         } else {}
@@ -438,6 +459,26 @@ function sendCitySelectionButtons(recipientId) {
                 content_type: "text",
                 title: "Noida",
                 payload: "4"
+            }, {
+                content_type: "text",
+                payload: "12",
+                title: "Pune"
+            }, {
+                content_type: "text",
+                payload: "14",
+                title: "Chennai"
+            }, {
+                content_type: "text",
+                payload: "16",
+                title: "Ahmedabad"
+            }, {
+                content_type: "text",
+                payload: "2",
+                title: "Delhi"
+            }, {
+                content_type: "text",
+                payload: "other",
+                title: "other"
             }]
         }
     };
@@ -718,4 +759,4 @@ function parseJson(body, recipientId) {
 
 }
 
-app.listen(process.env.PORT || 4000);
+app.listen(process.env.PORT || 4000);;

@@ -5,14 +5,12 @@
     "userMessage" : "Hi!Hello! hi , hello ,howdy "
   }, {
     "answer" : "Sure, I will be happy to assist you regarding your query on property search in that location. \nPlease type the name of your desired location, I'll try searching for you",
+    "methodType":"generic",
     "userMessage" : "looking property BHK apartment flat home house plot villa penthouse well occupied move possession advanced mid early new "
   }, {
     "answer" : "",
     "methodType":"search",
-    "userMessage" : "delhi gurgaon faridabad"
-  }, {
-    "answer" : "Now choose your preferred location from below",
-    "userMessage" : "Yes-Property"
+    "userMessage" : ""
   }, {
     "answer" : "Sir please gaali mat do. Aisa to mat karo yaar.",
     "userMessage" : "fuck bc mc bhenchod maa k loday madarchod chutia "
@@ -73,6 +71,10 @@
     "content_type" : "text",
     "payload" : "2",
     "title" : "Delhi"
+  }, {
+    "content_type" : "text",
+    "payload" : "other",
+    "title" : "other"
   }, {
     "content_type" : "text",
     "payload" : {
