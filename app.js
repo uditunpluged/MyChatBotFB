@@ -97,21 +97,27 @@ function searchForAnswers(senderID, messageFromUser) {
         if (shouldReply) {
             if (item.hasOwnProperty('methodType')) {
                 if (item.methodType === 'search') {
-                    sendTextMessage(senderID, item.answer);
-                    setTimeout(function() {
+                    sendTextMessage(senderID, item.answer, function(data) {
                         sendCitySelectionButtons(senderID);
-                    }, 2000);
+                    });
+
                 }
                 if (item.methodType === 'hi') {
-                    sendTextMessage(senderID, item.answer);
+                    sendTextMessage(senderID, item.answer, function(data) {
+
+                    });
                 }
 
                 if (item.methodType === 'generic') {
-                    sendTextMessage(senderID, item.answer);
+                    sendTextMessage(senderID, item.answer, function(data) {
+
+                    });
                 }
 
             } else {
-                sendTextMessage(senderID, item.answer);
+                sendTextMessage(senderID, item.answer, function(data) {
+
+                });
                 shouldReply = false;
             }
         }
@@ -139,16 +145,22 @@ function searchForPayload(senderID, message, messagePayload) {
                     console.log("min Price : " + JSON.stringify(usersMap.get(senderID).get("projectMinPrice")));
                     console.log("cityId : " + usersMap.get(senderID).get("cityId"));
 
-                    fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"));
+                    fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"), function(data) {
+
+                    });
                 }
 
             } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other") {
                 console.log("CITY ID", item.payload);
-                sendPriceRangeButtons(senderID, item.payload);
+                sendPriceRangeButtons(senderID, item.payload, function(data) {
+
+                });
             } else if (item.payload === 'other') {
                 console.log("CITY ID", item.payload);
                 // sendPriceRangeButtons(senderID, item.payload);
-                sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.")
+                sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.", function(data) {
+
+                })
             }
 
         } else {}
@@ -168,10 +180,12 @@ function getUserNameForPersonalization(uid) {
             firstName = obj.first_name;
             usersMap.set(uid, "");
             console.log("userName " + obj.first_name);
-            sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.");
-            setTimeout(function() {
-                sendYesNoQuickReplyButtons(uid);
-            }, 2000);
+            sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
+                sendYesNoQuickReplyButtons(uid, function(data) {
+
+                });
+            });
+
 
         } else {
             console.error("Get User Details Error : " + response);
@@ -367,7 +381,7 @@ function receivedMessage(event) {
 }
 
 // SEND MESSAGE
-function callSendAPI(messageData) {
+function callSendAPI(messageData, callback) {
     request({
         uri: 'https://graph.facebook.com/v2.6/me/messages',
         qs: {
@@ -388,13 +402,14 @@ function callSendAPI(messageData) {
                 console.log("Successfully called Send API for recipient %s with message %s",
                     recipientId, JSON.stringify(messageData));
             }
+            return callback(messageId);
         } else {
             console.error("Error : " + response.statusCode);
         }
     });
 }
 // SEND MESSAGES OF DIFFERENt TYPES
-function sendTextMessage(recipientId, messageText) {
+function sendTextMessage(recipientId, messageText, callback) {
     var messageData = {
         recipient: {
             id: "" + recipientId
@@ -404,17 +419,19 @@ function sendTextMessage(recipientId, messageText) {
         }
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 // SEND YES NO BUTTONS
-function sendYesNoQuickReplyButtons(recipientId) {
+function sendYesNoQuickReplyButtons(recipientId, callback) {
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            text: "Are you looking to buy a house",
+            text: "are you looking to invest in property ",
             quick_replies: [{
                 content_type: "text",
                 title: "Yes",
@@ -427,18 +444,20 @@ function sendYesNoQuickReplyButtons(recipientId) {
         }
     };
     // console.log(messageData);
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 //SEND CITY SELECTION BUTTONS
-function sendCitySelectionButtons(recipientId) {
+function sendCitySelectionButtons(recipientId, callback) {
     console.log('Sending city buutons to ' + recipientId);
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            text: "Please choose a city",
+            text: "which city are you looking to invest in ..",
             quick_replies: [{
                 content_type: "text",
                 title: "Gurgaon",
@@ -483,18 +502,20 @@ function sendCitySelectionButtons(recipientId) {
         }
     };
     // console.log(messageData);
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 //SEND PRICE RANGE BUTTONS
-function sendPriceRangeButtons(recipientId, cityId) {
+function sendPriceRangeButtons(recipientId, cityId, callback) {
     console.log('Sending price range buttons to ' + recipientId);
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            text: "what is the price range you are looking for?",
+            text: "what is the price range you are looking for",
             quick_replies: [{
                 content_type: "text",
                 title: "0l - 30L",
@@ -511,10 +532,12 @@ function sendPriceRangeButtons(recipientId, cityId) {
         }
     };
     console.log("Price range message" + JSON.stringify(messageData));
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
-function sendGenericMessage(recipientId) {
+function sendGenericMessage(recipientId, callback) {
     var messageData = {
         recipient: {
             id: recipientId
@@ -545,7 +568,9 @@ function sendGenericMessage(recipientId) {
         }
     };
     // console.log(messageData);
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 // What happens when user clicks on get started button
@@ -597,7 +622,7 @@ function receivedMessageRead(event) {
  * Send a read receipt to indicate the message has been read
  *
  */
-function sendReadReceipt(recipientId) {
+function sendReadReceipt(recipientId, callback) {
     console.log("Sending a read receipt to mark message as seen");
 
     var messageData = {
@@ -607,7 +632,9 @@ function sendReadReceipt(recipientId) {
         sender_action: "mark_seen"
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 
@@ -615,7 +642,7 @@ function sendReadReceipt(recipientId) {
  * Turn typing indicator on
  *
  */
-function sendTypingOn(recipientId) {
+function sendTypingOn(recipientId, callback) {
     console.log("Turning typing indicator on");
 
     var messageData = {
@@ -625,7 +652,9 @@ function sendTypingOn(recipientId) {
         sender_action: "typing_on"
     };
 
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 }
 
 /*
@@ -661,7 +690,7 @@ function searchData(senderID, cityId, text) {
     });
 }
 
-function parseSearchResponse(body, senderID) {
+function parseSearchResponse(body, senderID, callback) {
     var results = [];
     for (var i = 0; i < body.projectList.length; i++) {
         results.push({
@@ -693,7 +722,9 @@ function parseSearchResponse(body, senderID) {
         }
     };
     console.log(messageData);
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 
 }
 
@@ -718,7 +749,7 @@ function fetchList(senderID, cityId, maxPrice, minPrice) {
     });
 }
 
-function parseJson(body, recipientId) {
+function parseJson(body, recipientId, callback) {
     // console.log(body.projectList);
     var results = [];
     for (var i = 0; i < body.projectList.length; i++) {
@@ -755,7 +786,9 @@ function parseJson(body, recipientId) {
         }
     };
     console.log(messageData);
-    callSendAPI(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
 
 }
 
