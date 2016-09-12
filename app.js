@@ -25,8 +25,7 @@ var quickRepliesArray = [];
 var quickAnswersArray = [];
 // Test
 app.get('/ping', function(req, res) {
-    fetchList("tezt");
-    sendGenericMessage("test")
+    console.log("TEst succeeded");
 });
 app.use(bodyParser.json());
 
