@@ -25,7 +25,8 @@ var quickRepliesArray = [];
 var quickAnswersArray = [];
 // Test
 app.get('/ping', function(req, res) {
-    console.log("TEst succeeded");
+    fetchList("tezt");
+    sendGenericMessage("test")
 });
 app.use(bodyParser.json());
 
@@ -430,7 +431,7 @@ function sendYesNoQuickReplyButtons(recipientId, callback) {
             id: recipientId
         },
         message: {
-            text: "are you looking to invest in property ",
+            text: "are you looking to invest in property or buy a home for yourself ",
             quick_replies: [{
                 content_type: "text",
                 title: "Yes",
