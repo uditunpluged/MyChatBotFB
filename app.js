@@ -168,13 +168,13 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                var bhkCountMap = new HashMap();
-                bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
-                usersMap.set(senderID, bhkCountMap);
-                console.log("BHK COUT : " + bhkCountMap.get("bhkCount"));
+                // var bhkCountMap = new HashMap();
+                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                // usersMap.set(senderID, bhkCountMap);
+                // console.log("BHK COUT : " + bhkCountMap.get("bhkCount"));
 
                 // sendTextMessage(senderID, "" + anotherNewMap.get("cityId"), function(data) {});
             } else if (item.payload === 'other') {
