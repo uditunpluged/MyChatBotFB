@@ -133,33 +133,33 @@
     "title" : "15Cr & above"
   } ,{
       "content_type": "text",
-      "title": "1",
+      "title": "1bhk",
       "payload": {
-        "bhkCount":"1"
+        "bhkCount":"1bhk"
       }
   }, {
       "content_type": "text",
-      "title": "2",
+      "title": "2bhk",
       "payload": {
-        "bhkCount":"2"
+        "bhkCount":"2bhk"
       }
   }, {
       "content_type": "text",
-      "title": "3",
+      "title": "3bhk",
       "payload": {
-        "bhkCount":"3"
+        "bhkCount":"3bhk"
       }
   }, {
       "content_type": "text",
-      "title": "4",
+      "title": "4bhk",
       "payload": {
         "bhkCount":"4"
       }
   }, {
       "content_type": "text",
-      "title": "4 +",
+      "title": "above 4bhk",
       "payload": {
-        "bhkCount":"5"
+        "bhkCount":"5bhk"
       }
   }],
   "useranswers" : {

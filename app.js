@@ -150,7 +150,7 @@ function searchForPayload(senderID, message, messagePayload) {
                                 sendTextMessage(senderID, "Let me know a bit more about what you are looking in " + item.title, function(data) {
 
                                     sendBHKButtons(senderID, function(data) {
-                                        console.log("Completed")
+                                        console.log("Completed");
                                     });
                                 });
                             }
@@ -168,21 +168,25 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
+                console.log("BHK count " + JSON.stringify(usersMap));
                 // var bhkCountMap = new HashMap();
                 // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
                 // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
                 // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                // // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
                 // usersMap.set(senderID, bhkCountMap);
-                // console.log("BHK COUT : " + bhkCountMap.get("bhkCount"));
                 //
-                // // sendTextMessage(senderID, "" + anotherNewMap.get("cityId"), function(data) {});
+                // console.log("BHK COUT : " + bhkCountMap.get("cityId"));
+
+                // sendTextMessage(senderID, "" + bhkCountMap.get("bhkCount"), function(data) {});
             } else if (item.payload === 'other') {
                 console.log("CITY ID", item.payload);
                 // sendPriceRangeButtons(senderID, item.payload);
                 sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.", function(data) {
 
                 });
+            } else {
+
             }
 
         } else {}
@@ -590,24 +594,24 @@ function sendBHKButtons(recipientId, cityId, callback) {
             text: "how many bed rooms you are expecting in this price range",
             quick_replies: [{
                 content_type: "text",
-                title: "1",
-                payload: "1"
+                title: "1bhk",
+                payload: "1bhk"
             }, {
                 content_type: "text",
-                title: "2",
-                payload: "2"
+                title: "2bhk",
+                payload: "2bhk"
             }, {
                 content_type: "text",
-                title: "3",
-                payload: "3"
+                title: "3bhk",
+                payload: "3bhk"
             }, {
                 content_type: "text",
-                title: "4",
-                payload: "4"
+                title: "4bhk",
+                payload: "4bhk"
             }, {
                 content_type: "text",
-                title: "4 +",
-                payload: "4+"
+                title: "above 4bhk",
+                payload: "5bhk"
             }]
         }
     };
@@ -840,4 +844,4 @@ function parseJson(body, recipientId, callback) {
 
 }
 
-app.listen(process.env.PORT || 4000);;
+app.listen(process.env.PORT || 4000);
