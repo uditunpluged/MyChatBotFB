@@ -20,7 +20,7 @@ firebase.initializeApp(config);
 var rootRef = firebase.database().ref();
 
 //Store User response
-var usersMap = new HashMap();
+usersMap = new HashMap();
 var quickRepliesArray = [];
 var quickAnswersArray = [];
 // Test
@@ -168,6 +168,8 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
+                console.log('Usermap:');
+                console.log(usersMap);
                 console.log("BHK count " + JSON.stringify(usersMap));
                 // var bhkCountMap = new HashMap();
                 // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
