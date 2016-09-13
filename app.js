@@ -168,7 +168,7 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                var anotherNewMap = usersMap.get(senderID).clone();
+                var anotherNewMap = usersMap.get(senderID);
                 console.log("cityId : " + anotherNewMap.get("cityId"));
 
                 // sendTextMessage(senderID, "" + anotherNewMap.get("cityId"), function(data) {});
