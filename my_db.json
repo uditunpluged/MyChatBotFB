@@ -78,32 +78,90 @@
   }, {
     "content_type" : "text",
     "payload" : {
-      "projectMaxPrice" : "3000000",
-      "projectMinPrice" : "0"
-    },
-    "title" : "0l - 30L"
-  }, {
-    "content_type" : "text",
-    "payload" : {
-      "projectMaxPrice" : "7000000",
+      "projectMaxPrice" : "6000000",
       "projectMinPrice" : "3000000"
     },
-    "title" : "30l - 70L"
+    "title" : "30L - 60L"
   }, {
     "content_type" : "text",
     "payload" : {
-      "projectMaxPrice" : "7000000",
-      "projectMinPrice" : "15000000"
+      "projectMaxPrice" : "9000000",
+      "projectMinPrice" : "6000000"
     },
-    "title" : "70l - 1.5Cr"
+    "title" : "60L - 90L"
   }, {
     "content_type" : "text",
     "payload" : {
       "projectMaxPrice" : "15000000",
-      "projectMinPrice" : "50000000"
+      "projectMinPrice" : "9000000"
     },
-    "title" : "1.5l - 5Cr"
-  } ],
+    "title" : "90L - 1.5Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "20000000",
+      "projectMinPrice" : "15000000"
+    },
+    "title" : "1.5Cr - 2Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "40000000",
+      "projectMinPrice" : "20000000"
+    },
+    "title" : "2Cr - 4Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "80000000",
+      "projectMinPrice" : "40000000"
+    },
+    "title" : "4Cr - 8Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "150000000",
+      "projectMinPrice" : "80000000"
+    },
+    "title" : "8Cr - 15Cr"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "projectMaxPrice" : "500000000",
+      "projectMinPrice" : "150000000"
+    },
+    "title" : "15Cr & above"
+  } ,{
+      "content_type": "text",
+      "title": "1",
+      "payload": {
+        "bhkCount":"1"
+      }
+  }, {
+      "content_type": "text",
+      "title": "2",
+      "payload": {
+        "bhkCount":"2"
+      }
+  }, {
+      "content_type": "text",
+      "title": "3",
+      "payload": {
+        "bhkCount":"3"
+      }
+  }, {
+      "content_type": "text",
+      "title": "4",
+      "payload": {
+        "bhkCount":"4"
+      }
+  }, {
+      "content_type": "text",
+      "title": "4 +",
+      "payload": {
+        "bhkCount":"5"
+      }
+  }],
   "useranswers" : {
     "cityId" : "",
     "pageno" : "1"

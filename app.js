@@ -83,7 +83,6 @@ function searchForAnswers(senderID, messageFromUser) {
             if (item.userMessage.match(res[i])) {
                 var userMessageTokens = item.userMessage.split(" ");
                 for (var j = 0; j < userMessageTokens.length; j++) {
-                    console.log("" + userMessageTokens[j] + " and " + res[i]);
                     if (userMessageTokens[j] === res[i]) {
                         shouldReply = true;
                     } else {
@@ -146,21 +145,39 @@ function searchForPayload(senderID, message, messagePayload) {
                     console.log("cityId : " + usersMap.get(senderID).get("cityId"));
 
                     fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"), function(data) {
+                        quickRepliesArray.filter(function(item) {
+                            if (item.payload == usersMap.get(senderID).get("cityId")) {
+                                sendTextMessage(senderID, "Let me know a bit more about what you are looking in " + item.title, function(data) {
+
+                                    sendBHKButtons(senderID, function(data) {
+                                        console.log("Completed")
+                                    });
+                                });
+                            }
+                        });
 
                     });
                 }
 
-            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other") {
+            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount')) {
                 console.log("CITY ID", item.payload);
-                sendPriceRangeButtons(senderID, item.payload, function(data) {
+                sendTextMessage(senderID, "Let me streamline your query", function(data) {
 
+                    sendPriceRangeButtons(senderID, item.payload, function(data) {
+
+                    });
                 });
+            } else if (item.payload.hasOwnProperty('bhkCount')) {
+                var anotherNewMap = usersMap.get(senderID).clone();
+                console.log("cityId : " + anotherNewMap.get("cityId"));
+
+                // sendTextMessage(senderID, "" + anotherNewMap.get("cityId"), function(data) {});
             } else if (item.payload === 'other') {
                 console.log("CITY ID", item.payload);
                 // sendPriceRangeButtons(senderID, item.payload);
                 sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.", function(data) {
 
-                })
+                });
             }
 
         } else {}
@@ -518,15 +535,35 @@ function sendPriceRangeButtons(recipientId, cityId, callback) {
             text: "what is the price range you are looking for",
             quick_replies: [{
                 content_type: "text",
-                title: "0l - 30L",
+                title: "30L - 60L",
                 payload: "" + cityId
             }, {
                 content_type: "text",
-                title: "30l - 70L",
+                title: "60L - 90L",
                 payload: "" + cityId
             }, {
                 content_type: "text",
-                title: "70l - 1.5Cr",
+                title: "90L - 1.5Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "1.5Cr - 2Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "2Cr - 4Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "4Cr - 8Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "8Cr - 15Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "15Cr & above",
                 payload: "" + cityId
             }]
         }
@@ -537,41 +574,45 @@ function sendPriceRangeButtons(recipientId, cityId, callback) {
     });
 }
 
-function sendGenericMessage(recipientId, callback) {
+// SEND BHK buttons
+function sendBHKButtons(recipientId, cityId, callback) {
+    console.log('Sending BHK buttons to ' + recipientId);
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            text: "pick a filter",
+            text: "how many bed rooms you are expecting in this price range",
             quick_replies: [{
                 content_type: "text",
-                title: "0l-40L",
-                payload: "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_RED"
+                title: "1",
+                payload: "1"
             }, {
                 content_type: "text",
-                title: "40l-80L",
-                payload: "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
+                title: "2",
+                payload: "2"
             }, {
                 content_type: "text",
-                title: "80l-1.2Cr",
-                payload: "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
+                title: "3",
+                payload: "3"
             }, {
                 content_type: "text",
-                title: "1.2Cr-2cr",
-                payload: "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
+                title: "4",
+                payload: "4"
             }, {
                 content_type: "text",
-                title: "1.2Cr-2cr",
-                payload: "DEVELOPER_DEFINED_PAYLOAD_FOR_PICKING_GREEN"
+                title: "4 +",
+                payload: "4+"
             }]
         }
     };
-    // console.log(messageData);
+    console.log("BHK message" + JSON.stringify(messageData));
     callSendAPI(messageData, function(data) {
         return callback(data);
     });
 }
+
+
 
 // What happens when user clicks on get started button
 function receivedPostback(event) {
@@ -729,7 +770,7 @@ function parseSearchResponse(body, senderID, callback) {
 }
 
 
-function fetchList(senderID, cityId, maxPrice, minPrice) {
+function fetchList(senderID, cityId, maxPrice, minPrice, callback) {
     request({
         uri: 'http://api.squareyards.com/SquareYards/site/mobile/projectlist',
         method: 'POST',
@@ -744,7 +785,9 @@ function fetchList(senderID, cityId, maxPrice, minPrice) {
     }, function(error, response, body) {
         if (!error && response.statusCode == 200) {
             console.log(body) // Show the HTML for the Google homepage.
-            parseJson(body, senderID);
+            parseJson(body, senderID, function(data) {
+                return callback(data);
+            });
         }
     });
 }
