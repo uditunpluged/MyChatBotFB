@@ -339,6 +339,7 @@ function receivedMessage(event) {
     var userResponses = [];
 
     if (message.hasOwnProperty('quick_reply')) {
+        console.log(message.quick_reply.payload);
         if (message.quick_reply.payload != 'Yes-Property') {
             userResponses.push(messageText);
             console.log("USER RESPONSES :" + userResponses);
