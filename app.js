@@ -449,7 +449,9 @@ function sendTextMessage(recipientId, messageText, callback) {
 
 // SEND YES NO BUTTONS
 function sendYesNoQuickReplyButtons(recipientId, callback) {
-    var messageData = {
+
+    var messageData = {};
+    messageData = {
         recipient: {
             id: recipientId
         },
@@ -466,7 +468,8 @@ function sendYesNoQuickReplyButtons(recipientId, callback) {
             }]
         }
     };
-    // console.log(messageData);
+    console.log('quick Replies Nessage Data: ');
+    console.log(messageData);
     callSendAPI(messageData, function(data) {
         return callback(data);
     });
