@@ -168,13 +168,13 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                // var bhkCountMap = new HashMap();
-                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
-                // usersMap.set(senderID, bhkCountMap);
-                // console.log("BHK COUT : " + bhkCountMap.get("bhkCount"));
+                var bhkCountMap = new HashMap();
+                bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                usersMap.set(senderID, bhkCountMap);
+                console.log("BHK COUT : " + bhkCountMap.get("bhkCount"));
 
                 // sendTextMessage(senderID, "" + anotherNewMap.get("cityId"), function(data) {});
             } else if (item.payload === 'other') {
@@ -339,7 +339,6 @@ function receivedMessage(event) {
     var userResponses = [];
 
     if (message.hasOwnProperty('quick_reply')) {
-        console.log(message.quick_reply.payload);
         if (message.quick_reply.payload != 'Yes-Property') {
             userResponses.push(messageText);
             console.log("USER RESPONSES :" + userResponses);
@@ -449,9 +448,7 @@ function sendTextMessage(recipientId, messageText, callback) {
 
 // SEND YES NO BUTTONS
 function sendYesNoQuickReplyButtons(recipientId, callback) {
-
-    var messageData = {};
-    messageData = {
+    var messageData = {
         recipient: {
             id: recipientId
         },
@@ -468,8 +465,7 @@ function sendYesNoQuickReplyButtons(recipientId, callback) {
             }]
         }
     };
-    console.log('quick Replies Nessage Data: ');
-    console.log(messageData);
+    // console.log(messageData);
     callSendAPI(messageData, function(data) {
         return callback(data);
     });
