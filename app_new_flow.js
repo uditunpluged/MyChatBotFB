@@ -21,10 +21,7 @@ var rootRef = firebase.database().ref();
 console.log("Started new app");
 
 
-var j = schedule.scheduleJob('*/10 * * * * *', function() {
-    console.log('The answer to life, the universe, and everything!');
-    j.cancel();
-});
+
 
 //Store User response
 var usersMap = new HashMap();
@@ -220,8 +217,8 @@ function receivedMessage(event) {
     var timeOfMessage = event.timestamp;
     var message = event.message;
 
-    console.log("Received message for user %d and page %d at %d with message:",
-        senderID, recipientID, timeOfMessage);
+    // console.log("Received message for user %d and page %d at %d with message:",
+    //     senderID, recipientID, timeOfMessage);
     console.log(JSON.stringify(message));
 
     var messageId = message.mid;
@@ -379,8 +376,8 @@ function receivedPostback(event) {
     } else {
         getUserNameForPersonalization(senderID);
     }
-    console.log("Received postback for user %d and page %d with payload '%s' " +
-        "at %d", senderID, recipientID, payload, timeOfPostback);
+    // console.log("Received postback for user %d and page %d with payload '%s' " +
+    //     "at %d", senderID, recipientID, payload, timeOfPostback);
 
     // When a postback is called, we'll send a message back to the sender to
     // let them know it was successful
@@ -404,6 +401,13 @@ function receivedMessageRead(event) {
 
     console.log("Received message read event for watermark %d and sequence " +
         "number %d", watermark, sequenceNumber);
+
+    var j = schedule.scheduleJob('*/10 * * * * *', function() {
+        sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
+            j.cancel();
+        });
+
+    });
 }
 /*
  * Send a read receipt to indicate the message has been read
