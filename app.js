@@ -20,7 +20,7 @@ firebase.initializeApp(config);
 var rootRef = firebase.database().ref();
 
 //Store User response
-usersMap = new HashMap();
+var usersMap = new HashMap();
 var quickRepliesArray = [];
 var quickAnswersArray = [];
 // Test
@@ -150,7 +150,7 @@ function searchForPayload(senderID, message, messagePayload) {
                                 sendTextMessage(senderID, "Let me know a bit more about what you are looking in " + item.title, function(data) {
 
                                     sendBHKButtons(senderID, function(data) {
-                                        console.log("Completed");
+                                        // return callback(data);
                                     });
                                 });
                             }
@@ -159,7 +159,7 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 }
 
-            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount')) {
+            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount') && !item.payload.hasOwnProperty('val')) {
                 console.log("CITY ID", item.payload);
                 sendTextMessage(senderID, "Let me streamline your query", function(data) {
 
@@ -168,30 +168,36 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 });
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                console.log('Usermap:');
-                console.log(usersMap);
                 console.log("BHK count " + JSON.stringify(usersMap));
-                // var bhkCountMap = new HashMap();
-                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                // // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
-                // usersMap.set(senderID, bhkCountMap);
+                var bhkCountMap = new HashMap();
+                bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                usersMap.set(senderID, bhkCountMap);
                 //
-                // console.log("BHK COUT : " + bhkCountMap.get("cityId"));
-
-                // sendTextMessage(senderID, "" + bhkCountMap.get("bhkCount"), function(data) {});
-            } else if (item.payload === 'other') {
-                console.log("CITY ID", item.payload);
-                // sendPriceRangeButtons(senderID, item.payload);
-                sendTextMessage(senderID, "Please type the name of your preffered city for ex:\' Hyderabad\',\' Faridabad\', etc.", function(data) {
+                console.log('==============================================');
+                console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
+                console.log('==============================================');
+                sendStatusButtons(senderID, function(data) {
 
                 });
-            } else {
+            } else if (item.payload.hasOwnProperty('val')) {
+                var statusMap = new HashMap();
+                statusMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                statusMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                statusMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                statusMap.set('bhkCount', "" + usersMap.get(senderID).get("bhkCount"));
+                statusMap.set('status', "" + item.payload.val);
+                usersMap.set(senderID, statusMap);
+                //
+                console.log('==============================================');
+                console.log("BHK count " + JSON.stringify(usersMap));
+                console.log("City Id : " + usersMap.get(senderID).get("bhkCount") + " Status " + usersMap.get(senderID).get("status"));
+                console.log('==============================================');
 
             }
-
-        } else {}
+        }
     });
 }
 
@@ -345,7 +351,7 @@ function receivedMessage(event) {
     var userResponses = [];
 
     if (message.hasOwnProperty('quick_reply')) {
-        if (message.quick_reply.payload != 'Yes-Property') {
+        if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
             userResponses.push(messageText);
             console.log("USER RESPONSES :" + userResponses);
             searchForPayload(senderID, messageText, message.quick_reply.payload);
@@ -356,6 +362,24 @@ function receivedMessage(event) {
             // searchForPayload(senderID,messageText);
             sendCitySelectionButtons(senderID);
 
+        }
+        if (message.quick_reply.payload === 'No-Property') {
+            sendTextMessage(senderID, "Please let us know what are you what are you looking for.", function(data) {
+
+                setTimeout(function() {
+                    sendTextMessage(senderID, "I can help you with real-estate related queries if you're looking for buying or selling a property.", function(data) {
+                        sendCallMeButton(senderID, function(data) {
+                            setTimeout(function() {
+                                sendTextMessage(senderID, "meanwhile you can try our need based recommendation tool.", function(data) {
+                                    sendNBRTool(senderID, function(data) {});
+                                });
+                            }, 2000);
+
+                        });
+                    });
+
+                }, 2000);
+            })
         }
     }
 
@@ -452,6 +476,65 @@ function sendTextMessage(recipientId, messageText, callback) {
     });
 }
 
+//send nbr tool
+function sendNBRTool(recepientId) {
+    var messageData = {
+        recipient: {
+            "id": "" + recepientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements: [{
+                        title: "Need based recommendations",
+                        "image_url": "https://d2e9thu7mhurn3.cloudfront.net/assets/images/NBR-tool.jpg",
+                        "subtitle": "a tool that provides tailored solution to all your property needs",
+                        "buttons": [{
+                            "type": "web_url",
+                            "url": "http://www.squareyards.com/mumbai-real-estate-property/need-based-recommendation",
+                            "title": "NBR Tool",
+                            "webview_height_ratio": "tall"
+                        }]
+                    }]
+                }
+            }
+        }
+    };
+
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
+
+}
+
+
+function sendCallMeButton(recipientId) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "Need further assistance? Talk to a representative",
+                    buttons: [{
+                        type: "phone_number",
+                        title: "Call Representative",
+                        payload: "18002083344"
+                    }]
+                }
+            }
+        }
+    };
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
+
 // SEND YES NO BUTTONS
 function sendYesNoQuickReplyButtons(recipientId, callback) {
     var messageData = {
@@ -531,7 +614,7 @@ function sendCitySelectionButtons(recipientId, callback) {
     };
     // console.log(messageData);
     callSendAPI(messageData, function(data) {
-        return callback(data);
+        // return callback(data);
     });
 }
 
@@ -597,32 +680,77 @@ function sendBHKButtons(recipientId, cityId, callback) {
             quick_replies: [{
                 content_type: "text",
                 title: "1bhk",
-                payload: "1bhk"
+                payload: "one"
             }, {
                 content_type: "text",
                 title: "2bhk",
-                payload: "2bhk"
+                payload: "two"
             }, {
                 content_type: "text",
                 title: "3bhk",
-                payload: "3bhk"
+                payload: "three"
             }, {
                 content_type: "text",
                 title: "4bhk",
-                payload: "4bhk"
+                payload: "four"
             }, {
                 content_type: "text",
                 title: "above 4bhk",
-                payload: "5bhk"
+                payload: "above"
             }]
         }
     };
     console.log("BHK message" + JSON.stringify(messageData));
     callSendAPI(messageData, function(data) {
-        return callback(data);
+        // return callback(data);
     });
 }
 
+// SEND Status buttons
+function sendStatusButtons(recipientId, cityId, callback) {
+    console.log('Sending Status buttons to ' + recipientId);
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: "project status",
+            quick_replies: [{
+                content_type: "text",
+                title: "New Launch",
+                payload: "nl"
+            }, {
+                content_type: "text",
+                title: "Early Stage",
+                payload: "es"
+            }, {
+                content_type: "text",
+                title: "Mid Stage",
+                payload: "ms"
+            }, {
+                content_type: "text",
+                title: "Advanced Stage",
+                payload: "as"
+            }, {
+                content_type: "text",
+                title: "Near Possesion",
+                payload: "np"
+            }, {
+                content_type: "text",
+                title: "Ready to Move",
+                payload: "rtm"
+            }, {
+                content_type: "text",
+                title: "Well Occupied",
+                payload: "wo"
+            }]
+        }
+    };
+    console.log("Status message" + JSON.stringify(messageData));
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
 
 
 // What happens when user clicks on get started button

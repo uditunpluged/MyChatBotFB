@@ -2,10 +2,10 @@
   "name": "MyChatBotServer",
   "version": "1.0.0",
   "description": "A really stupid meaningless bot.",
-  "main": "app.js",
+  "main": "app_new_flow.js",
   "scripts": {
     "test": "haha no",
-    "start": "node app.js"
+    "start": "node app_new_flow.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "express": "^4.14.0",
     "firebase": "^3.3.0",
     "hashmap": "^2.0.6",
+    "node-schedule": "^1.1.1",
     "request": "^2.74.0"
   }
 }

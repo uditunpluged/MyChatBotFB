@@ -135,31 +135,73 @@
       "content_type": "text",
       "title": "1bhk",
       "payload": {
-        "bhkCount":"1bhk"
+        "bhkCount":"one"
       }
   }, {
       "content_type": "text",
       "title": "2bhk",
       "payload": {
-        "bhkCount":"2bhk"
+        "bhkCount":"two"
       }
   }, {
       "content_type": "text",
       "title": "3bhk",
       "payload": {
-        "bhkCount":"3bhk"
+        "bhkCount":"three"
       }
   }, {
       "content_type": "text",
       "title": "4bhk",
       "payload": {
-        "bhkCount":"4"
+        "bhkCount":"four"
       }
   }, {
       "content_type": "text",
       "title": "above 4bhk",
       "payload": {
-        "bhkCount":"5bhk"
+        "bhkCount":"above"
+      }
+  },{
+      "content_type": "text",
+      "title": "New Launch",
+      "payload": {
+        "val" :"nl"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Early Stage",
+      "payload": {
+        "val":"es"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Mid Stage",
+      "payload": {
+        "val":"ms"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Advanced Stage",
+      "payload": {
+        "val":"as"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Near Possesion",
+      "payload": {
+        "val":"np"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Ready to Move",
+      "payload": {
+        "val":"rtm"
+      }
+  }, {
+      "content_type": "text",
+      "title": "Well Occupied",
+      "payload": {
+        "val":"wo"
       }
   }],
   "useranswers" : {
