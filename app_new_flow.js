@@ -403,9 +403,8 @@ function receivedMessageRead(event) {
         "number %d", watermark, sequenceNumber);
 
     var j = schedule.scheduleJob('*/10 * * * * *', function() {
-        sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
-            j.cancel();
-        });
+        sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {});
+        j.cancel();
 
     });
 }
