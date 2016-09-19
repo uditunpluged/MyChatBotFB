@@ -197,489 +197,498 @@ function searchForPayload(senderID, message, messagePayload) {
 
 function searchForGeneralQuery(senderID, cityId, queryMessage) {
     request({
-        uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
-        method: 'POST',
-        json: {
-            "city": cityId,
-            "userQuery": "" + queryMessage,
-            "uid": "qwertyasdfzxcv007"
+            uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
+            method: 'POST',
+            json: {
+                "city": cityId,
+                "userQuery": "" + queryMessage,
+                "uid": "qwertyasdfzxcv007"
 
-        }
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            console.log(body) // Show the HTML for the Google homepage.
-            parseSearchResponse(body, senderID, function(data) {
-
-            });
-        }
-    });
-}
-
-function parseSearchResponse(body, senderID, callback) {
-    var results = [];
-    for (var i = 0; i < body.projectList.length; i++) {
-        results.push({
-            title: body.projectList[i].projectName,
-            subtitle: body.projectList[i].primaryLocation + ", " + body.projectList[i].projectMinMaxPriceView + ", " + body.projectList[i].bhkOptions,
-            item_url: body.projectList[i].projectUrl,
-            image_url: body.projectList[i].projectImageUrl,
-            buttons: [{
-                type: "web_url",
-                url: body.projectList[i].projectUrl,
-                title: "Open Web URL"
-            }],
-        });
-
-    }
-
-    var messageData = {
-        recipient: {
-            id: senderID
-        },
-        message: {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "generic",
-                    elements: results
-                }
             }
-        }
-    };
-    console.log(messageData);
-    callSendAPI(messageData, function(data) {
-        return callback(data);
-    });
+        }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log(body) // Show the HTML for the Google homepage.
+                if (body.message === 'success') {
 
-}
+                    parseSearchResponse(body, senderID, function(data) {
 
-//SET GREETING TEXT message
-function setGreetingText() {
-    console.log("Setting Greeeting text");
-
-    var jsonObject = {
-        setting_type: 'greeting',
-        thread_state: 'existing_thread',
-        greeting: {
-            text: "Welocome to CRI Kasauli. You can ask us queries. We are in developement phase."
-        }
-    };
-    setThread(jsonObject);
-}
-
-// SET PERSISTENT MENU
-function setPersistentMenu() {
-    console.log("Setting Persistent Menu");
-
-    var jsonObject = {
-        "setting_type": "call_to_actions",
-        "thread_state": "existing_thread",
-        "call_to_actions": [{
-            "type": "postback",
-            "title": "Help",
-            "payload": "1"
-        }, {
-            "type": "postback",
-            "title": "Buy a property",
-            "payload": "2"
-        }, {
-            "type": "postback",
-            "title": "Filters",
-            "payload": "3"
-        }]
-    };
-    setThread(jsonObject);
-}
-// SET THREAD
-function setThread(jsonObject) {
-    request({
-        uri: 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=' + PAGE_ACCESS_TOKEN,
-        method: 'POST',
-        json: jsonObject
-
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var variabel = body;
-            // var messageId = body.message_id;
-            console.log("" + variabel);
-            // if (messageId) {
-            //   console.log("Successfully sent message with id %s to recipient %s",
-            //     messageId, recipientId);
-            // } else {
-            // console.log("Successfully called Send API for recipient %s",
-            //   recipientId);
-            // }
-        } else {
-            console.error("Set Thread Error : " + response.statusCode);
-        }
-    });
-}
-
-// Receive text message
-app.post('/webhook', function(req, res) {
-    var data = req.body;
-
-    // Make sure this is a page subscription
-    if (data.object == 'page') {
-        // Iterate over each entry
-        // There may be multiple if batched
-        data.entry.forEach(function(pageEntry) {
-            var pageID = pageEntry.id;
-            var timeOfEvent = pageEntry.time;
-
-            // Iterate over each messaging event
-            pageEntry.messaging.forEach(function(messagingEvent) {
-                if (messagingEvent.optin) {
-                    receivedAuthentication(messagingEvent);
-                } else if (messagingEvent.message) {
-                    receivedMessage(messagingEvent);
-                } else if (messagingEvent.delivery) {
-                    // receivedDeliveryConfirmation(messagingEvent);
-                } else if (messagingEvent.postback) {
-                    receivedPostback(messagingEvent);
-                } else if (messagingEvent.read) {
-                    receivedMessageRead(messagingEvent);
+                    });
                 } else {
-                    console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+                    sendTextMessage(senderID, "No relevant results were found!", function(data) {
+                            sendTextMessage(senderID, "Please try searching with different key words.", function(data) {
+
+                                }
+                            });
+                    }
                 }
             });
+    }
+
+    function parseSearchResponse(body, senderID, callback) {
+        var results = [];
+        for (var i = 0; i < body.projectList.length; i++) {
+            results.push({
+                title: body.projectList[i].projectName,
+                subtitle: body.projectList[i].primaryLocation + ", " + body.projectList[i].projectMinMaxPriceView + ", " + body.projectList[i].bhkOptions,
+                item_url: body.projectList[i].projectUrl,
+                image_url: body.projectList[i].projectImageUrl,
+                buttons: [{
+                    type: "web_url",
+                    url: body.projectList[i].projectUrl,
+                    title: "Open Web URL"
+                }],
+            });
+
+        }
+
+        var messageData = {
+            recipient: {
+                id: senderID
+            },
+            message: {
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "generic",
+                        elements: results
+                    }
+                }
+            }
+        };
+        console.log(messageData);
+        callSendAPI(messageData, function(data) {
+            return callback(data);
         });
 
-        // Assume all went well.
-        //
-        // You must send back a 200, within 20 seconds, to let us know you've
-        // successfully received the callback. Otherwise, the request will time out.
-        res.sendStatus(200);
-    }
-});
-
-
-function receivedMessage(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
-    var timeOfMessage = event.timestamp;
-    var message = event.message;
-
-    // console.log("Received message for user %d and page %d at %d with message:",
-    //     senderID, recipientID, timeOfMessage);
-    console.log(JSON.stringify(message));
-
-
-    var messageId = message.mid;
-
-    // You may get a text or attachment but not both
-    var messageText = message.text;
-    var messageAttachments = message.attachments
-
-    var userResponses = [];
-
-    if (message.hasOwnProperty('quick_reply')) {
-        if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
-            userResponses.push(messageText);
-            console.log("USER RESPONSES :" + userResponses);
-            searchForPayload(senderID, messageText, message.quick_reply.payload);
-        }
-        if (message.quick_reply.payload == 'Yes-Property') {
-            // userResponses.push(messageText);
-            // console.log("USER RESPONSES :"+userResponses);
-            // searchForPayload(senderID,messageText);
-            // sendCitySelectionButtons(senderID);
-
-        }
-        if (message.quick_reply.payload === 'No-Property') {
-            sendTextMessage(senderID, "Please let us know what are you what are you looking for.", function(data) {
-
-                setTimeout(function() {
-                    sendTextMessage(senderID, "I can help you with real-estate related queries if you're looking for buying or selling a property.", function(data) {
-                        // sendCallMeButton(senderID, function(data) {
-                        // setTimeout(function() {
-                        //     sendTextMessage(senderID, "meanwhile you can try our need based recommendation tool.", function(data) {
-                        //         // sendNBRTool(senderID, function(data) {});
-                        //     });
-                        // }, 2000);
-
-                        // });
-                    });
-
-                }, 2000);
-            })
-        }
     }
 
+    //SET GREETING TEXT message
+    function setGreetingText() {
+        console.log("Setting Greeeting text");
 
-    if (messageText) {
-
-        // If we receive a text message, check to see if it matches any special
-        // keywords and send back the corresponding example. Otherwise, just echo
-        // the text we received.
-
-        switch (messageText) {
-            case 'image':
-                sendImageMessage(senderID);
-                break;
-
-            case 'button':
-                sendButtonMessage(senderID);
-                break;
-
-            case 'generic':
-                // sendGenericMessage(senderID);
-
-                break;
-
-            case 'receipt':
-                // sendReceiptMessage(senderID);
-                break;
-            case 'read receipt':
-                // sendReadReceipt(senderID);
-                break;
-
-            case 'typing on':
-                // sendTypingOn(senderID);
-                break;
-
-            case 'typing off':
-                // sendTypingOff(senderID);
-                break;
-                // case 'Yes':
-                //     if(message.quick_reply.payload =='Yes-Property') {
-                //         sendCitySelectionButtons(senderID);
-                //     }
-                //     break;
-            case 'Kolkata':
-                break;
-            default:
-                sendTypingOn(senderID, function(data) {
-                    var j = schedule.scheduleJob('*/5 * * * * *', function() {
-
-                        searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
-                        j.cancel();
-                    });
-
-                });
-
-                break;
-        }
-    } else if (messageAttachments) {
-        sendTextMessage(senderID, "Message with attachment received");
-    }
-}
-
-// SEND MESSAGE
-function callSendAPI(messageData, callback) {
-    request({
-        uri: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {
-            access_token: PAGE_ACCESS_TOKEN
-        },
-        method: 'POST',
-        json: messageData
-
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var recipientId = body.recipient_id;
-            var messageId = body.message_id;
-
-            if (messageId) {
-                console.log("Successfully sent message with id %s to recipient %s",
-                    messageId, recipientId);
-            } else {
-                console.log("Successfully called Send API for recipient %s with message %s",
-                    recipientId, JSON.stringify(messageData));
+        var jsonObject = {
+            setting_type: 'greeting',
+            thread_state: 'existing_thread',
+            greeting: {
+                text: "Welocome to CRI Kasauli. You can ask us queries. We are in developement phase."
             }
-            return callback(messageId);
-        } else {
-            console.error("Error : " + response.statusCode);
-        }
-    });
-}
-
-
-// SEND MESSAGES OF DIFFERENt TYPES
-function sendTextMessage(recipientId, messageText, callback) {
-    var messageData = {
-        recipient: {
-            id: "" + recipientId
-        },
-        message: {
-            text: messageText
-        }
-    };
-
-    callSendAPI(messageData, function(data) {
-        return callback(data);
-    });
-}
-
-function sendCitySelectionButtons(recipientId, callback) {
-    console.log('Sending city buutons to ' + recipientId);
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            text: "which city are you looking to invest in ..",
-            quick_replies: [{
-                content_type: "text",
-                title: "Gurgaon",
-                payload: "1"
-            }, {
-                content_type: "text",
-                title: "Kolkata",
-                payload: "17"
-            }, {
-                content_type: "text",
-                title: "Mumbai",
-                payload: "13"
-            }, {
-                content_type: "text",
-                title: "Banglore",
-                payload: "10"
-            }, {
-                content_type: "text",
-                title: "Noida",
-                payload: "4"
-            }, {
-                content_type: "text",
-                payload: "12",
-                title: "Pune"
-            }, {
-                content_type: "text",
-                payload: "14",
-                title: "Chennai"
-            }, {
-                content_type: "text",
-                payload: "16",
-                title: "Ahmedabad"
-            }, {
-                content_type: "text",
-                payload: "2",
-                title: "Delhi"
-            }, {
-                content_type: "text",
-                payload: "other",
-                title: "other"
-            }]
-        }
-    };
-    // console.log(messageData);
-    callSendAPI(messageData, function(data) {
-        // return callback(data);
-    });
-}
-
-
-// What happens when user clicks on get started button
-function receivedPostback(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
-    var timeOfPostback = event.timestamp;
-    //
-    // // The 'payload' param is a developer-defined field which is set in a postback
-    // // button for Structured Messages.
-    var payload = event.postback.payload;
-
-    if (payload == '1') {
-        sendGenericMessage(senderID);
-    } else if (payload == '2') {
-        sendTextMessage(senderID, "finding");
-    } else if (payload == '3') {
-        sendTextMessage(senderID, "filtering");
-    } else {
-        getUserNameForPersonalization(senderID);
+        };
+        setThread(jsonObject);
     }
-    // console.log("Received postback for user %d and page %d with payload '%s' " +
-    //     "at %d", senderID, recipientID, payload, timeOfPostback);
 
-    // When a postback is called, we'll send a message back to the sender to
-    // let them know it was successful
-    // sendTextMessage(senderID, "Hi "+name+" ! How are you");
-}
+    // SET PERSISTENT MENU
+    function setPersistentMenu() {
+        console.log("Setting Persistent Menu");
 
+        var jsonObject = {
+            "setting_type": "call_to_actions",
+            "thread_state": "existing_thread",
+            "call_to_actions": [{
+                "type": "postback",
+                "title": "Help",
+                "payload": "1"
+            }, {
+                "type": "postback",
+                "title": "Buy a property",
+                "payload": "2"
+            }, {
+                "type": "postback",
+                "title": "Filters",
+                "payload": "3"
+            }]
+        };
+        setThread(jsonObject);
+    }
+    // SET THREAD
+    function setThread(jsonObject) {
+        request({
+            uri: 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=' + PAGE_ACCESS_TOKEN,
+            method: 'POST',
+            json: jsonObject
 
-/*
- * Message Read Event
- *
- * This event is called when a previously-sent message has been read.
- *
- */
-function receivedMessageRead(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
+        }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var variabel = body;
+                // var messageId = body.message_id;
+                console.log("" + variabel);
+                // if (messageId) {
+                //   console.log("Successfully sent message with id %s to recipient %s",
+                //     messageId, recipientId);
+                // } else {
+                // console.log("Successfully called Send API for recipient %s",
+                //   recipientId);
+                // }
+            } else {
+                console.error("Set Thread Error : " + response.statusCode);
+            }
+        });
+    }
 
-    // All messages before watermark (a timestamp) or sequence have been seen.
-    var watermark = event.read.watermark;
-    var sequenceNumber = event.read.seq;
+    // Receive text message
+    app.post('/webhook', function(req, res) {
+        var data = req.body;
 
-    console.log("Received message read event for watermark %d and sequence " +
-        "number %d", watermark, sequenceNumber);
+        // Make sure this is a page subscription
+        if (data.object == 'page') {
+            // Iterate over each entry
+            // There may be multiple if batched
+            data.entry.forEach(function(pageEntry) {
+                var pageID = pageEntry.id;
+                var timeOfEvent = pageEntry.time;
 
-    // var j = schedule.scheduleJob('*/20 * * * * *', function() {
-    //     sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
-    //         j.cancel();
-    //     });
+                // Iterate over each messaging event
+                pageEntry.messaging.forEach(function(messagingEvent) {
+                    if (messagingEvent.optin) {
+                        receivedAuthentication(messagingEvent);
+                    } else if (messagingEvent.message) {
+                        receivedMessage(messagingEvent);
+                    } else if (messagingEvent.delivery) {
+                        // receivedDeliveryConfirmation(messagingEvent);
+                    } else if (messagingEvent.postback) {
+                        receivedPostback(messagingEvent);
+                    } else if (messagingEvent.read) {
+                        receivedMessageRead(messagingEvent);
+                    } else {
+                        console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+                    }
+                });
+            });
 
-
-    // });
-}
-/*
- * Send a read receipt to indicate the message has been read
- *
- */
-function sendReadReceipt(recipientId, callback) {
-    console.log("Sending a read receipt to mark message as seen");
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        sender_action: "mark_seen"
-    };
-
-    callSendAPI(messageData, function(data) {
-        return callback(data);
+            // Assume all went well.
+            //
+            // You must send back a 200, within 20 seconds, to let us know you've
+            // successfully received the callback. Otherwise, the request will time out.
+            res.sendStatus(200);
+        }
     });
-}
 
 
-/*
- * Turn typing indicator on
- *
- */
-function sendTypingOn(recipientId, callback) {
-    console.log("Turning typing indicator on");
+    function receivedMessage(event) {
+        var senderID = event.sender.id;
+        var recipientID = event.recipient.id;
+        var timeOfMessage = event.timestamp;
+        var message = event.message;
 
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        sender_action: "typing_on"
-    };
-
-    callSendAPI(messageData, function(data) {
-        return callback(data);
-    });
-}
-
-/*
- * Turn typing indicator off
- *
- */
-function sendTypingOff(recipientId) {
-    console.log("Turning typing indicator off");
-
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        sender_action: "typing_off"
-    };
-
-    callSendAPI(messageData);
-}
+        // console.log("Received message for user %d and page %d at %d with message:",
+        //     senderID, recipientID, timeOfMessage);
+        console.log(JSON.stringify(message));
 
 
+        var messageId = message.mid;
+
+        // You may get a text or attachment but not both
+        var messageText = message.text;
+        var messageAttachments = message.attachments
+
+        var userResponses = [];
+
+        if (message.hasOwnProperty('quick_reply')) {
+            if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
+                userResponses.push(messageText);
+                console.log("USER RESPONSES :" + userResponses);
+                searchForPayload(senderID, messageText, message.quick_reply.payload);
+            }
+            if (message.quick_reply.payload == 'Yes-Property') {
+                // userResponses.push(messageText);
+                // console.log("USER RESPONSES :"+userResponses);
+                // searchForPayload(senderID,messageText);
+                // sendCitySelectionButtons(senderID);
+
+            }
+            if (message.quick_reply.payload === 'No-Property') {
+                sendTextMessage(senderID, "Please let us know what are you what are you looking for.", function(data) {
+
+                    setTimeout(function() {
+                        sendTextMessage(senderID, "I can help you with real-estate related queries if you're looking for buying or selling a property.", function(data) {
+                            // sendCallMeButton(senderID, function(data) {
+                            // setTimeout(function() {
+                            //     sendTextMessage(senderID, "meanwhile you can try our need based recommendation tool.", function(data) {
+                            //         // sendNBRTool(senderID, function(data) {});
+                            //     });
+                            // }, 2000);
+
+                            // });
+                        });
+
+                    }, 2000);
+                })
+            }
+        }
+
+
+        if (messageText) {
+
+            // If we receive a text message, check to see if it matches any special
+            // keywords and send back the corresponding example. Otherwise, just echo
+            // the text we received.
+
+            switch (messageText) {
+                case 'image':
+                    sendImageMessage(senderID);
+                    break;
+
+                case 'button':
+                    sendButtonMessage(senderID);
+                    break;
+
+                case 'generic':
+                    // sendGenericMessage(senderID);
+
+                    break;
+
+                case 'receipt':
+                    // sendReceiptMessage(senderID);
+                    break;
+                case 'read receipt':
+                    // sendReadReceipt(senderID);
+                    break;
+
+                case 'typing on':
+                    // sendTypingOn(senderID);
+                    break;
+
+                case 'typing off':
+                    // sendTypingOff(senderID);
+                    break;
+                    // case 'Yes':
+                    //     if(message.quick_reply.payload =='Yes-Property') {
+                    //         sendCitySelectionButtons(senderID);
+                    //     }
+                    //     break;
+                case 'Kolkata':
+                    break;
+                default:
+                    sendTypingOn(senderID, function(data) {
+                        var j = schedule.scheduleJob('*/5 * * * * *', function() {
+
+                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
+                            j.cancel();
+                        });
+
+                    });
+
+                    break;
+            }
+        } else if (messageAttachments) {
+            sendTextMessage(senderID, "Message with attachment received");
+        }
+    }
+
+    // SEND MESSAGE
+    function callSendAPI(messageData, callback) {
+        request({
+            uri: 'https://graph.facebook.com/v2.6/me/messages',
+            qs: {
+                access_token: PAGE_ACCESS_TOKEN
+            },
+            method: 'POST',
+            json: messageData
+
+        }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var recipientId = body.recipient_id;
+                var messageId = body.message_id;
+
+                if (messageId) {
+                    console.log("Successfully sent message with id %s to recipient %s",
+                        messageId, recipientId);
+                } else {
+                    console.log("Successfully called Send API for recipient %s with message %s",
+                        recipientId, JSON.stringify(messageData));
+                }
+                return callback(messageId);
+            } else {
+                console.error("Error : " + response.statusCode);
+            }
+        });
+    }
+
+
+    // SEND MESSAGES OF DIFFERENt TYPES
+    function sendTextMessage(recipientId, messageText, callback) {
+        var messageData = {
+            recipient: {
+                id: "" + recipientId
+            },
+            message: {
+                text: messageText
+            }
+        };
+
+        callSendAPI(messageData, function(data) {
+            return callback(data);
+        });
+    }
+
+    function sendCitySelectionButtons(recipientId, callback) {
+        console.log('Sending city buutons to ' + recipientId);
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            message: {
+                text: "which city are you looking to invest in ..",
+                quick_replies: [{
+                    content_type: "text",
+                    title: "Gurgaon",
+                    payload: "1"
+                }, {
+                    content_type: "text",
+                    title: "Kolkata",
+                    payload: "17"
+                }, {
+                    content_type: "text",
+                    title: "Mumbai",
+                    payload: "13"
+                }, {
+                    content_type: "text",
+                    title: "Banglore",
+                    payload: "10"
+                }, {
+                    content_type: "text",
+                    title: "Noida",
+                    payload: "4"
+                }, {
+                    content_type: "text",
+                    payload: "12",
+                    title: "Pune"
+                }, {
+                    content_type: "text",
+                    payload: "14",
+                    title: "Chennai"
+                }, {
+                    content_type: "text",
+                    payload: "16",
+                    title: "Ahmedabad"
+                }, {
+                    content_type: "text",
+                    payload: "2",
+                    title: "Delhi"
+                }, {
+                    content_type: "text",
+                    payload: "other",
+                    title: "other"
+                }]
+            }
+        };
+        // console.log(messageData);
+        callSendAPI(messageData, function(data) {
+            // return callback(data);
+        });
+    }
+
+
+    // What happens when user clicks on get started button
+    function receivedPostback(event) {
+        var senderID = event.sender.id;
+        var recipientID = event.recipient.id;
+        var timeOfPostback = event.timestamp;
+        //
+        // // The 'payload' param is a developer-defined field which is set in a postback
+        // // button for Structured Messages.
+        var payload = event.postback.payload;
+
+        if (payload == '1') {
+            sendGenericMessage(senderID);
+        } else if (payload == '2') {
+            sendTextMessage(senderID, "finding");
+        } else if (payload == '3') {
+            sendTextMessage(senderID, "filtering");
+        } else {
+            getUserNameForPersonalization(senderID);
+        }
+        // console.log("Received postback for user %d and page %d with payload '%s' " +
+        //     "at %d", senderID, recipientID, payload, timeOfPostback);
+
+        // When a postback is called, we'll send a message back to the sender to
+        // let them know it was successful
+        // sendTextMessage(senderID, "Hi "+name+" ! How are you");
+    }
+
+
+    /*
+     * Message Read Event
+     *
+     * This event is called when a previously-sent message has been read.
+     *
+     */
+    function receivedMessageRead(event) {
+        var senderID = event.sender.id;
+        var recipientID = event.recipient.id;
+
+        // All messages before watermark (a timestamp) or sequence have been seen.
+        var watermark = event.read.watermark;
+        var sequenceNumber = event.read.seq;
+
+        console.log("Received message read event for watermark %d and sequence " +
+            "number %d", watermark, sequenceNumber);
+
+        // var j = schedule.scheduleJob('*/20 * * * * *', function() {
+        //     sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
+        //         j.cancel();
+        //     });
+
+
+        // });
+    }
+    /*
+     * Send a read receipt to indicate the message has been read
+     *
+     */
+    function sendReadReceipt(recipientId, callback) {
+        console.log("Sending a read receipt to mark message as seen");
+
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            sender_action: "mark_seen"
+        };
+
+        callSendAPI(messageData, function(data) {
+            return callback(data);
+        });
+    }
+
+
+    /*
+     * Turn typing indicator on
+     *
+     */
+    function sendTypingOn(recipientId, callback) {
+        console.log("Turning typing indicator on");
+
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            sender_action: "typing_on"
+        };
+
+        callSendAPI(messageData, function(data) {
+            return callback(data);
+        });
+    }
+
+    /*
+     * Turn typing indicator off
+     *
+     */
+    function sendTypingOff(recipientId) {
+        console.log("Turning typing indicator off");
+
+        var messageData = {
+            recipient: {
+                id: recipientId
+            },
+            sender_action: "typing_off"
+        };
+
+        callSendAPI(messageData);
+    }
 
 
 
-app.listen(process.env.PORT || 4000);
+
+
+    app.listen(process.env.PORT || 4000);
