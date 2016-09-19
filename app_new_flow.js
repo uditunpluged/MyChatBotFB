@@ -96,7 +96,9 @@ function getUserNameForPersonalization(uid) {
             usersMap.set(uid, "");
             console.log("userName " + obj.first_name);
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
+                sendTypingOn(uid, function(data) {
 
+                });
             });
 
 
@@ -229,38 +231,7 @@ function receivedMessage(event) {
 
     var userResponses = [];
 
-    if (message.hasOwnProperty('quick_reply')) {
-        if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
-            userResponses.push(messageText);
-            console.log("USER RESPONSES :" + userResponses);
-            // searchForPayload(senderID, messageText, message.quick_reply.payload);
-        }
-        if (message.quick_reply.payload == 'Yes-Property') {
-            // userResponses.push(messageText);
-            // console.log("USER RESPONSES :"+userResponses);
-            // searchForPayload(senderID,messageText);
-            // sendCitySelectionButtons(senderID);
 
-        }
-        if (message.quick_reply.payload === 'No-Property') {
-            sendTextMessage(senderID, "Please let us know what are you what are you looking for.", function(data) {
-
-                setTimeout(function() {
-                    sendTextMessage(senderID, "I can help you with real-estate related queries if you're looking for buying or selling a property.", function(data) {
-                        sendCallMeButton(senderID, function(data) {
-                            setTimeout(function() {
-                                sendTextMessage(senderID, "meanwhile you can try our need based recommendation tool.", function(data) {
-                                    sendNBRTool(senderID, function(data) {});
-                                });
-                            }, 2000);
-
-                        });
-                    });
-
-                }, 2000);
-            })
-        }
-    }
 
     if (messageText) {
 
