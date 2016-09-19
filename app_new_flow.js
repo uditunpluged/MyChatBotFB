@@ -445,7 +445,15 @@ function receivedMessage(event) {
                 //     }
                 //     break;
             default:
-                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
+                sendTypingOn(senderID, function(data) {
+                    var j = schedule.scheduleJob('*/5 * * * * *', function() {
+
+                        searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
+                        j.cancel();
+                    });
+
+                });
+
                 break;
         }
     } else if (messageAttachments) {
