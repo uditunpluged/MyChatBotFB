@@ -437,7 +437,7 @@ function receivedMessageRead(event) {
     //     });
 
 
-});
+    // });
 }
 /*
  * Send a read receipt to indicate the message has been read
