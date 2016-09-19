@@ -97,7 +97,11 @@ function getUserNameForPersonalization(uid) {
             console.log("userName " + obj.first_name);
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
                 sendTypingOn(uid, function(data) {
+                    setTimeOut(function(data) {
+                        sendCitySelectionButtons(uid, function(data) {
 
+                        });
+                    }, 7000);
                 });
             });
 
@@ -112,7 +116,6 @@ function getUserNameForPersonalization(uid) {
 /** Should do stuff that we want the app to do
  */
 //SET GREETING TEXT message
-
 function setGreetingText() {
     console.log("Setting Greeeting text");
 
@@ -309,6 +312,8 @@ function callSendAPI(messageData, callback) {
         }
     });
 }
+
+
 // SEND MESSAGES OF DIFFERENt TYPES
 function sendTextMessage(recipientId, messageText, callback) {
     var messageData = {
@@ -325,7 +330,62 @@ function sendTextMessage(recipientId, messageText, callback) {
     });
 }
 
-
+function sendCitySelectionButtons(recipientId, callback) {
+    console.log('Sending city buutons to ' + recipientId);
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: "which city are you looking to invest in ..",
+            quick_replies: [{
+                content_type: "text",
+                title: "Gurgaon",
+                payload: "1"
+            }, {
+                content_type: "text",
+                title: "Kolkata",
+                payload: "17"
+            }, {
+                content_type: "text",
+                title: "Mumbai",
+                payload: "13"
+            }, {
+                content_type: "text",
+                title: "Banglore",
+                payload: "10"
+            }, {
+                content_type: "text",
+                title: "Noida",
+                payload: "4"
+            }, {
+                content_type: "text",
+                payload: "12",
+                title: "Pune"
+            }, {
+                content_type: "text",
+                payload: "14",
+                title: "Chennai"
+            }, {
+                content_type: "text",
+                payload: "16",
+                title: "Ahmedabad"
+            }, {
+                content_type: "text",
+                payload: "2",
+                title: "Delhi"
+            }, {
+                content_type: "text",
+                payload: "other",
+                title: "other"
+            }]
+        }
+    };
+    // console.log(messageData);
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
 
 
 // What happens when user clicks on get started button
