@@ -87,359 +87,360 @@ function getUserNameForPersonalization(uid) {
     var firstName;
     console.log("Personalising");
     request({
-        uri: url,
-        method: 'GET'
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var obj = JSON.parse(body);
-            firstName = obj.first_name;
-            usersMap.set(uid, "");
-            console.log("userName " + obj.first_name);
-            sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
-                sendTypingOn(uid, function(data) {
-                    setTimeOut(function(data) {
-                        sendCitySelectionButtons(uid, function(data) {
+            uri: url,
+            method: 'GET'
+        }, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var obj = JSON.parse(body);
+                firstName = obj.first_name;
+                usersMap.set(uid, "");
+                console.log("userName " + obj.first_name);
+                sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
+                        sendTypingOn(uid, function(data) {
 
+                            var j = schedule.scheduleJob('*/6 * * * * *', function() {
+                                sendCitySelectionButtons(uid, function(data) {
+                                    j.cancel();
+                                });
+
+                            });
                         });
-                    }, 7000);
+
+
+                    } else {
+                        console.error("Get User Details Error : " + response);
+                    }
                 });
-            });
 
-
-        } else {
-            console.error("Get User Details Error : " + response);
         }
-    });
+        // all the stuff to be coded below
+        /** Should do stuff that we want the app to do
+         */
+        //SET GREETING TEXT message
+        function setGreetingText() {
+            console.log("Setting Greeeting text");
 
-}
-// all the stuff to be coded below
-/** Should do stuff that we want the app to do
- */
-//SET GREETING TEXT message
-function setGreetingText() {
-    console.log("Setting Greeeting text");
-
-    var jsonObject = {
-        setting_type: 'greeting',
-        thread_state: 'existing_thread',
-        greeting: {
-            text: "Welocome to CRI Kasauli. You can ask us queries. We are in developement phase."
+            var jsonObject = {
+                setting_type: 'greeting',
+                thread_state: 'existing_thread',
+                greeting: {
+                    text: "Welocome to CRI Kasauli. You can ask us queries. We are in developement phase."
+                }
+            };
+            setThread(jsonObject);
         }
-    };
-    setThread(jsonObject);
-}
 
-// SET PERSISTENT MENU
-function setPersistentMenu() {
-    console.log("Setting Persistent Menu");
+        // SET PERSISTENT MENU
+        function setPersistentMenu() {
+            console.log("Setting Persistent Menu");
 
-    var jsonObject = {
-        "setting_type": "call_to_actions",
-        "thread_state": "existing_thread",
-        "call_to_actions": [{
-            "type": "postback",
-            "title": "Help",
-            "payload": "1"
-        }, {
-            "type": "postback",
-            "title": "Buy a property",
-            "payload": "2"
-        }, {
-            "type": "postback",
-            "title": "Filters",
-            "payload": "3"
-        }]
-    };
-    setThread(jsonObject);
-}
-// SET THREAD
-function setThread(jsonObject) {
-    request({
-        uri: 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=' + PAGE_ACCESS_TOKEN,
-        method: 'POST',
-        json: jsonObject
-
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var variabel = body;
-            // var messageId = body.message_id;
-            console.log("" + variabel);
-            // if (messageId) {
-            //   console.log("Successfully sent message with id %s to recipient %s",
-            //     messageId, recipientId);
-            // } else {
-            // console.log("Successfully called Send API for recipient %s",
-            //   recipientId);
-            // }
-        } else {
-            console.error("Set Thread Error : " + response.statusCode);
+            var jsonObject = {
+                "setting_type": "call_to_actions",
+                "thread_state": "existing_thread",
+                "call_to_actions": [{
+                    "type": "postback",
+                    "title": "Help",
+                    "payload": "1"
+                }, {
+                    "type": "postback",
+                    "title": "Buy a property",
+                    "payload": "2"
+                }, {
+                    "type": "postback",
+                    "title": "Filters",
+                    "payload": "3"
+                }]
+            };
+            setThread(jsonObject);
         }
-    });
-}
+        // SET THREAD
+        function setThread(jsonObject) {
+            request({
+                uri: 'https://graph.facebook.com/v2.6/me/thread_settings?access_token=' + PAGE_ACCESS_TOKEN,
+                method: 'POST',
+                json: jsonObject
 
-// Receive text message
-app.post('/webhook', function(req, res) {
-    var data = req.body;
-
-    // Make sure this is a page subscription
-    if (data.object == 'page') {
-        // Iterate over each entry
-        // There may be multiple if batched
-        data.entry.forEach(function(pageEntry) {
-            var pageID = pageEntry.id;
-            var timeOfEvent = pageEntry.time;
-
-            // Iterate over each messaging event
-            pageEntry.messaging.forEach(function(messagingEvent) {
-                if (messagingEvent.optin) {
-                    receivedAuthentication(messagingEvent);
-                } else if (messagingEvent.message) {
-                    receivedMessage(messagingEvent);
-                } else if (messagingEvent.delivery) {
-                    // receivedDeliveryConfirmation(messagingEvent);
-                } else if (messagingEvent.postback) {
-                    receivedPostback(messagingEvent);
-                } else if (messagingEvent.read) {
-                    receivedMessageRead(messagingEvent);
+            }, function(error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var variabel = body;
+                    // var messageId = body.message_id;
+                    console.log("" + variabel);
+                    // if (messageId) {
+                    //   console.log("Successfully sent message with id %s to recipient %s",
+                    //     messageId, recipientId);
+                    // } else {
+                    // console.log("Successfully called Send API for recipient %s",
+                    //   recipientId);
+                    // }
                 } else {
-                    console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+                    console.error("Set Thread Error : " + response.statusCode);
                 }
             });
+        }
+
+        // Receive text message
+        app.post('/webhook', function(req, res) {
+            var data = req.body;
+
+            // Make sure this is a page subscription
+            if (data.object == 'page') {
+                // Iterate over each entry
+                // There may be multiple if batched
+                data.entry.forEach(function(pageEntry) {
+                    var pageID = pageEntry.id;
+                    var timeOfEvent = pageEntry.time;
+
+                    // Iterate over each messaging event
+                    pageEntry.messaging.forEach(function(messagingEvent) {
+                        if (messagingEvent.optin) {
+                            receivedAuthentication(messagingEvent);
+                        } else if (messagingEvent.message) {
+                            receivedMessage(messagingEvent);
+                        } else if (messagingEvent.delivery) {
+                            // receivedDeliveryConfirmation(messagingEvent);
+                        } else if (messagingEvent.postback) {
+                            receivedPostback(messagingEvent);
+                        } else if (messagingEvent.read) {
+                            receivedMessageRead(messagingEvent);
+                        } else {
+                            console.log("Webhook received unknown messagingEvent: ", messagingEvent);
+                        }
+                    });
+                });
+
+                // Assume all went well.
+                //
+                // You must send back a 200, within 20 seconds, to let us know you've
+                // successfully received the callback. Otherwise, the request will time out.
+                res.sendStatus(200);
+            }
         });
 
-        // Assume all went well.
-        //
-        // You must send back a 200, within 20 seconds, to let us know you've
-        // successfully received the callback. Otherwise, the request will time out.
-        res.sendStatus(200);
-    }
-});
 
+        function receivedMessage(event) {
+            var senderID = event.sender.id;
+            var recipientID = event.recipient.id;
+            var timeOfMessage = event.timestamp;
+            var message = event.message;
 
-function receivedMessage(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
-    var timeOfMessage = event.timestamp;
-    var message = event.message;
+            // console.log("Received message for user %d and page %d at %d with message:",
+            //     senderID, recipientID, timeOfMessage);
+            console.log(JSON.stringify(message));
 
-    // console.log("Received message for user %d and page %d at %d with message:",
-    //     senderID, recipientID, timeOfMessage);
-    console.log(JSON.stringify(message));
+            var messageId = message.mid;
 
-    var messageId = message.mid;
+            // You may get a text or attachment but not both
+            var messageText = message.text;
+            var messageAttachments = message.attachments
 
-    // You may get a text or attachment but not both
-    var messageText = message.text;
-    var messageAttachments = message.attachments
-
-    var userResponses = [];
+            var userResponses = [];
 
 
 
-    if (messageText) {
+            if (messageText) {
 
-        // If we receive a text message, check to see if it matches any special
-        // keywords and send back the corresponding example. Otherwise, just echo
-        // the text we received.
+                // If we receive a text message, check to see if it matches any special
+                // keywords and send back the corresponding example. Otherwise, just echo
+                // the text we received.
 
-        switch (messageText) {
-            case 'image':
-                sendImageMessage(senderID);
-                break;
+                switch (messageText) {
+                    case 'image':
+                        sendImageMessage(senderID);
+                        break;
 
-            case 'button':
-                sendButtonMessage(senderID);
-                break;
+                    case 'button':
+                        sendButtonMessage(senderID);
+                        break;
 
-            case 'generic':
-                // sendGenericMessage(senderID);
+                    case 'generic':
+                        // sendGenericMessage(senderID);
 
-                break;
+                        break;
 
-            case 'receipt':
-                // sendReceiptMessage(senderID);
-                break;
-            case 'read receipt':
-                // sendReadReceipt(senderID);
-                break;
+                    case 'receipt':
+                        // sendReceiptMessage(senderID);
+                        break;
+                    case 'read receipt':
+                        // sendReadReceipt(senderID);
+                        break;
 
-            case 'typing on':
-                // sendTypingOn(senderID);
-                break;
+                    case 'typing on':
+                        // sendTypingOn(senderID);
+                        break;
 
-            case 'typing off':
-                // sendTypingOff(senderID);
-                break;
-                // case 'Yes':
-                //     if(message.quick_reply.payload =='Yes-Property') {
-                //         sendCitySelectionButtons(senderID);
-                //     }
-                //     break;
-            default:
-                // searchForAnswers(senderID, messageText);
-                break;
-        }
-    } else if (messageAttachments) {
-        sendTextMessage(senderID, "Message with attachment received");
-    }
-}
-
-// SEND MESSAGE
-function callSendAPI(messageData, callback) {
-    request({
-        uri: 'https://graph.facebook.com/v2.6/me/messages',
-        qs: {
-            access_token: PAGE_ACCESS_TOKEN
-        },
-        method: 'POST',
-        json: messageData
-
-    }, function(error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var recipientId = body.recipient_id;
-            var messageId = body.message_id;
-
-            if (messageId) {
-                console.log("Successfully sent message with id %s to recipient %s",
-                    messageId, recipientId);
-            } else {
-                console.log("Successfully called Send API for recipient %s with message %s",
-                    recipientId, JSON.stringify(messageData));
+                    case 'typing off':
+                        // sendTypingOff(senderID);
+                        break;
+                        // case 'Yes':
+                        //     if(message.quick_reply.payload =='Yes-Property') {
+                        //         sendCitySelectionButtons(senderID);
+                        //     }
+                        //     break;
+                    default:
+                        // searchForAnswers(senderID, messageText);
+                        break;
+                }
+            } else if (messageAttachments) {
+                sendTextMessage(senderID, "Message with attachment received");
             }
-            return callback(messageId);
-        } else {
-            console.error("Error : " + response.statusCode);
         }
-    });
-}
 
+        // SEND MESSAGE
+        function callSendAPI(messageData, callback) {
+            request({
+                uri: 'https://graph.facebook.com/v2.6/me/messages',
+                qs: {
+                    access_token: PAGE_ACCESS_TOKEN
+                },
+                method: 'POST',
+                json: messageData
 
-// SEND MESSAGES OF DIFFERENt TYPES
-function sendTextMessage(recipientId, messageText, callback) {
-    var messageData = {
-        recipient: {
-            id: "" + recipientId
-        },
-        message: {
-            text: messageText
+            }, function(error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    var recipientId = body.recipient_id;
+                    var messageId = body.message_id;
+
+                    if (messageId) {
+                        console.log("Successfully sent message with id %s to recipient %s",
+                            messageId, recipientId);
+                    } else {
+                        console.log("Successfully called Send API for recipient %s with message %s",
+                            recipientId, JSON.stringify(messageData));
+                    }
+                    return callback(messageId);
+                } else {
+                    console.error("Error : " + response.statusCode);
+                }
+            });
         }
-    };
 
-    callSendAPI(messageData, function(data) {
-        return callback(data);
-    });
-}
 
-function sendCitySelectionButtons(recipientId, callback) {
-    console.log('Sending city buutons to ' + recipientId);
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            text: "which city are you looking to invest in ..",
-            quick_replies: [{
-                content_type: "text",
-                title: "Gurgaon",
-                payload: "1"
-            }, {
-                content_type: "text",
-                title: "Kolkata",
-                payload: "17"
-            }, {
-                content_type: "text",
-                title: "Mumbai",
-                payload: "13"
-            }, {
-                content_type: "text",
-                title: "Banglore",
-                payload: "10"
-            }, {
-                content_type: "text",
-                title: "Noida",
-                payload: "4"
-            }, {
-                content_type: "text",
-                payload: "12",
-                title: "Pune"
-            }, {
-                content_type: "text",
-                payload: "14",
-                title: "Chennai"
-            }, {
-                content_type: "text",
-                payload: "16",
-                title: "Ahmedabad"
-            }, {
-                content_type: "text",
-                payload: "2",
-                title: "Delhi"
-            }, {
-                content_type: "text",
-                payload: "other",
-                title: "other"
-            }]
+        // SEND MESSAGES OF DIFFERENt TYPES
+        function sendTextMessage(recipientId, messageText, callback) {
+            var messageData = {
+                recipient: {
+                    id: "" + recipientId
+                },
+                message: {
+                    text: messageText
+                }
+            };
+
+            callSendAPI(messageData, function(data) {
+                return callback(data);
+            });
         }
-    };
-    // console.log(messageData);
-    callSendAPI(messageData, function(data) {
-        // return callback(data);
-    });
-}
+
+        function sendCitySelectionButtons(recipientId, callback) {
+            console.log('Sending city buutons to ' + recipientId);
+            var messageData = {
+                recipient: {
+                    id: recipientId
+                },
+                message: {
+                    text: "which city are you looking to invest in ..",
+                    quick_replies: [{
+                        content_type: "text",
+                        title: "Gurgaon",
+                        payload: "1"
+                    }, {
+                        content_type: "text",
+                        title: "Kolkata",
+                        payload: "17"
+                    }, {
+                        content_type: "text",
+                        title: "Mumbai",
+                        payload: "13"
+                    }, {
+                        content_type: "text",
+                        title: "Banglore",
+                        payload: "10"
+                    }, {
+                        content_type: "text",
+                        title: "Noida",
+                        payload: "4"
+                    }, {
+                        content_type: "text",
+                        payload: "12",
+                        title: "Pune"
+                    }, {
+                        content_type: "text",
+                        payload: "14",
+                        title: "Chennai"
+                    }, {
+                        content_type: "text",
+                        payload: "16",
+                        title: "Ahmedabad"
+                    }, {
+                        content_type: "text",
+                        payload: "2",
+                        title: "Delhi"
+                    }, {
+                        content_type: "text",
+                        payload: "other",
+                        title: "other"
+                    }]
+                }
+            };
+            // console.log(messageData);
+            callSendAPI(messageData, function(data) {
+                // return callback(data);
+            });
+        }
 
 
-// What happens when user clicks on get started button
-function receivedPostback(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
-    var timeOfPostback = event.timestamp;
-    //
-    // // The 'payload' param is a developer-defined field which is set in a postback
-    // // button for Structured Messages.
-    var payload = event.postback.payload;
+        // What happens when user clicks on get started button
+        function receivedPostback(event) {
+            var senderID = event.sender.id;
+            var recipientID = event.recipient.id;
+            var timeOfPostback = event.timestamp;
+            //
+            // // The 'payload' param is a developer-defined field which is set in a postback
+            // // button for Structured Messages.
+            var payload = event.postback.payload;
 
-    if (payload == '1') {
-        sendGenericMessage(senderID);
-    } else if (payload == '2') {
-        sendTextMessage(senderID, "finding");
-    } else if (payload == '3') {
-        sendTextMessage(senderID, "filtering");
-    } else {
-        getUserNameForPersonalization(senderID);
-    }
-    // console.log("Received postback for user %d and page %d with payload '%s' " +
-    //     "at %d", senderID, recipientID, payload, timeOfPostback);
+            if (payload == '1') {
+                sendGenericMessage(senderID);
+            } else if (payload == '2') {
+                sendTextMessage(senderID, "finding");
+            } else if (payload == '3') {
+                sendTextMessage(senderID, "filtering");
+            } else {
+                getUserNameForPersonalization(senderID);
+            }
+            // console.log("Received postback for user %d and page %d with payload '%s' " +
+            //     "at %d", senderID, recipientID, payload, timeOfPostback);
 
-    // When a postback is called, we'll send a message back to the sender to
-    // let them know it was successful
-    // sendTextMessage(senderID, "Hi "+name+" ! How are you");
-}
-
-
-/*
- * Message Read Event
- *
- * This event is called when a previously-sent message has been read.
- *
- */
-function receivedMessageRead(event) {
-    var senderID = event.sender.id;
-    var recipientID = event.recipient.id;
-
-    // All messages before watermark (a timestamp) or sequence have been seen.
-    var watermark = event.read.watermark;
-    var sequenceNumber = event.read.seq;
-
-    console.log("Received message read event for watermark %d and sequence " +
-        "number %d", watermark, sequenceNumber);
-
-    // var j = schedule.scheduleJob('*/20 * * * * *', function() {
-    //     sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
-    //         j.cancel();
-    //     });
+            // When a postback is called, we'll send a message back to the sender to
+            // let them know it was successful
+            // sendTextMessage(senderID, "Hi "+name+" ! How are you");
+        }
 
 
-});
+        /*
+         * Message Read Event
+         *
+         * This event is called when a previously-sent message has been read.
+         *
+         */
+        function receivedMessageRead(event) {
+            var senderID = event.sender.id;
+            var recipientID = event.recipient.id;
+
+            // All messages before watermark (a timestamp) or sequence have been seen.
+            var watermark = event.read.watermark;
+            var sequenceNumber = event.read.seq;
+
+            console.log("Received message read event for watermark %d and sequence " +
+                "number %d", watermark, sequenceNumber);
+
+            // var j = schedule.scheduleJob('*/20 * * * * *', function() {
+            //     sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
+            //         j.cancel();
+            //     });
+
+
+        });
 }
 /*
  * Send a read receipt to indicate the message has been read
