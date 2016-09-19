@@ -433,13 +433,13 @@ function receivedMessageRead(event) {
     console.log("Received message read event for watermark %d and sequence " +
         "number %d", watermark, sequenceNumber);
 
-    var j = schedule.scheduleJob('*/20 * * * * *', function() {
-        sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
-            j.cancel();
-        });
+    // var j = schedule.scheduleJob('*/20 * * * * *', function() {
+    //     sendTextMessage(senderID, 'The answer to life, the universe, and everything!', function(data) {
+    //         j.cancel();
+    //     });
 
 
-    });
+});
 }
 /*
  * Send a read receipt to indicate the message has been read
