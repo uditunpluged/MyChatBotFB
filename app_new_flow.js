@@ -198,7 +198,7 @@ app.post('/webhook', function(req, res) {
                 } else if (messagingEvent.postback) {
                     receivedPostback(messagingEvent);
                 } else if (messagingEvent.read) {
-                    // receivedMessageRead(messagingEvent);
+                    receivedMessageRead(messagingEvent);
                 } else {
                     console.log("Webhook received unknown messagingEvent: ", messagingEvent);
                 }
@@ -236,13 +236,13 @@ function receivedMessage(event) {
         if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
             userResponses.push(messageText);
             console.log("USER RESPONSES :" + userResponses);
-            searchForPayload(senderID, messageText, message.quick_reply.payload);
+            // searchForPayload(senderID, messageText, message.quick_reply.payload);
         }
         if (message.quick_reply.payload == 'Yes-Property') {
             // userResponses.push(messageText);
             // console.log("USER RESPONSES :"+userResponses);
             // searchForPayload(senderID,messageText);
-            sendCitySelectionButtons(senderID);
+            // sendCitySelectionButtons(senderID);
 
         }
         if (message.quick_reply.payload === 'No-Property') {
@@ -283,7 +283,6 @@ function receivedMessage(event) {
             case 'generic':
                 // sendGenericMessage(senderID);
 
-                fetchList(senderID);
                 break;
 
             case 'receipt':
@@ -306,7 +305,7 @@ function receivedMessage(event) {
                 //     }
                 //     break;
             default:
-                searchForAnswers(senderID, messageText);
+                // searchForAnswers(senderID, messageText);
                 break;
         }
     } else if (messageAttachments) {
