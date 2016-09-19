@@ -96,11 +96,13 @@ function getUserNameForPersonalization(uid) {
             usersMap.set(uid, "");
             console.log("userName " + obj.first_name);
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
-                var j = schedule.scheduleJob('*/6 * * * * *', function() {
-                    sendCitySelectionButtons(uid, function(data) {
+                sendTypingOn(uid, function(data) {
+                    var j = schedule.scheduleJob('*/10 * * * * *', function() {
+                        sendCitySelectionButtons(uid, function(data) {
 
+                        });
+                        j.cancel();
                     });
-                    j.cancel();
                 });
             });
 
