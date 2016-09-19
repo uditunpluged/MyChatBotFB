@@ -444,15 +444,18 @@ function receivedMessage(event) {
                 //         sendCitySelectionButtons(senderID);
                 //     }
                 //     break;
+            case 'Kolkata':
+                break;
             default:
-                sendTypingOn(senderID, function(data) {
-                    var j = schedule.scheduleJob('*/5 * * * * *', function() {
-
-                        searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
-                        j.cancel();
-                    });
-
-                });
+                sendTypingOff(senderID, function(data) {});
+                // sendTypingOn(senderID, function(data) {
+                //     var j = schedule.scheduleJob('*/5 * * * * *', function() {
+                //
+                //         searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
+                //         j.cancel();
+                //     });
+                //
+                // });
 
                 break;
         }
