@@ -201,7 +201,9 @@ function searchForGeneralQuery(senderID, cityId, queryMessage) {
         method: 'POST',
         json: {
             "city": cityId,
-            "userQuery": "" + queryMessage
+            "userQuery": "" + queryMessage,
+            "uid": "qwertyasdfzxcv007"
+
         }
     }, function(error, response, body) {
         if (!error && response.statusCode == 200) {
