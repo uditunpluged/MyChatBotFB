@@ -98,9 +98,9 @@ function getUserNameForPersonalization(uid) {
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
                 var j = schedule.scheduleJob('*/6 * * * * *', function() {
                     sendCitySelectionButtons(uid, function(data) {
-                        j.cancel();
-                    });
 
+                    });
+                    j.cancel();
                 });
             });
 
