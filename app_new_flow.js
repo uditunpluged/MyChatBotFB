@@ -79,9 +79,6 @@ function quickReplies() {
     });
 }
 
-
-
-
 function getUserNameForPersonalization(uid) {
     var url = "https://graph.facebook.com/v2.6/" + uid + "?access_token=" + PAGE_ACCESS_TOKEN;
     var firstName;
@@ -112,9 +109,92 @@ function getUserNameForPersonalization(uid) {
     });
 
 }
-// all the stuff to be coded below
-/** Should do stuff that we want the app to do
- */
+
+function searchForPayload(senderID, message, messagePayload) {
+    console.log("Searching for payload " + message);
+
+    var arrayFound = quickRepliesArray.filter(function(item) {
+        if (item.title == message) {
+
+            if (item.payload.hasOwnProperty('projectMaxPrice') && item.payload.hasOwnProperty('projectMinPrice')) {
+                var newMap = new HashMap();
+                newMap.set('projectMaxPrice', item.payload.projectMaxPrice);
+                newMap.set('projectMinPrice', item.payload.projectMinPrice);
+                newMap.set('cityId', "" + messagePayload);
+                usersMap.set(senderID, newMap);
+                console.log("Sending Payload " + JSON.stringify(usersMap));
+                if (usersMap.has(senderID)) {
+                    console.log("Fetching user DDetails:" + JSON.stringify(usersMap));
+                    console.log("max Price : " + JSON.stringify(usersMap.get(senderID).get("projectMaxPrice")));
+                    console.log("min Price : " + JSON.stringify(usersMap.get(senderID).get("projectMinPrice")));
+                    console.log("cityId : " + usersMap.get(senderID).get("cityId"));
+
+                    // fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"), function(data) {
+                    //     quickRepliesArray.filter(function(item) {
+                    //         if (item.payload == usersMap.get(senderID).get("cityId")) {
+                    //             sendTextMessage(senderID, "Let me know a bit more about what you are looking in " + item.title, function(data) {
+                    //
+                    //                 sendBHKButtons(senderID, function(data) {
+                    //                     // return callback(data);
+                    //                 });
+                    //             });
+                    //         }
+                    //     });
+                    //
+                    // });
+                }
+
+            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount') && !item.payload.hasOwnProperty('val')) {
+                console.log("CITY ID", item.payload);
+                var firstMap = new HashMap();
+                firstMap.set('cityId', "" + item.payload);
+                usersMap.set(senderID, firstMap);
+                sendTypingOn(senderID, function(data) {
+
+                    var j = schedule.scheduleJob('*/6 * * * * *', function() {
+                        sendTextMessage(senderID, "Let me know what can I help you with, you can type in the project name/location and other real estate related queries anytime during the chat...", function(data) {
+
+                        });
+                        j.cancel();
+                    });
+
+
+                });
+
+            } else if (item.payload.hasOwnProperty('bhkCount')) {
+                // console.log("BHK count " + JSON.stringify(usersMap));
+                // var bhkCountMap = new HashMap();
+                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                // usersMap.set(senderID, bhkCountMap);
+                // //
+                // console.log('==============================================');
+                // console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
+                // console.log('==============================================');
+                // sendStatusButtons(senderID, function(data) {
+                //
+                // });
+            } else if (item.payload.hasOwnProperty('val')) {
+                // var statusMap = new HashMap();
+                // statusMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                // statusMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                // statusMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                // statusMap.set('bhkCount', "" + usersMap.get(senderID).get("bhkCount"));
+                // statusMap.set('status', "" + item.payload.val);
+                // usersMap.set(senderID, statusMap);
+                // //
+                // console.log('==============================================');
+                // console.log("BHK count " + JSON.stringify(usersMap));
+                // console.log("City Id : " + usersMap.get(senderID).get("bhkCount") + " Status " + usersMap.get(senderID).get("status"));
+                // console.log('==============================================');
+
+            }
+        }
+    });
+}
+
 //SET GREETING TEXT message
 function setGreetingText() {
     console.log("Setting Greeeting text");
@@ -226,6 +306,7 @@ function receivedMessage(event) {
     //     senderID, recipientID, timeOfMessage);
     console.log(JSON.stringify(message));
 
+
     var messageId = message.mid;
 
     // You may get a text or attachment but not both
@@ -234,6 +315,38 @@ function receivedMessage(event) {
 
     var userResponses = [];
 
+    if (message.hasOwnProperty('quick_reply')) {
+        if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
+            userResponses.push(messageText);
+            console.log("USER RESPONSES :" + userResponses);
+            searchForPayload(senderID, messageText, message.quick_reply.payload);
+        }
+        if (message.quick_reply.payload == 'Yes-Property') {
+            // userResponses.push(messageText);
+            // console.log("USER RESPONSES :"+userResponses);
+            // searchForPayload(senderID,messageText);
+            // sendCitySelectionButtons(senderID);
+
+        }
+        if (message.quick_reply.payload === 'No-Property') {
+            sendTextMessage(senderID, "Please let us know what are you what are you looking for.", function(data) {
+
+                setTimeout(function() {
+                    sendTextMessage(senderID, "I can help you with real-estate related queries if you're looking for buying or selling a property.", function(data) {
+                        // sendCallMeButton(senderID, function(data) {
+                        // setTimeout(function() {
+                        //     sendTextMessage(senderID, "meanwhile you can try our need based recommendation tool.", function(data) {
+                        //         // sendNBRTool(senderID, function(data) {});
+                        //     });
+                        // }, 2000);
+
+                        // });
+                    });
+
+                }, 2000);
+            })
+        }
+    }
 
 
     if (messageText) {
