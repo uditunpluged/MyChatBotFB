@@ -195,6 +195,62 @@ function searchForPayload(senderID, message, messagePayload) {
     });
 }
 
+function searchForGeneralQuery(senderID, cityId, queryMessage) {
+    request({
+        uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
+        method: 'POST',
+        json: {
+            "city": cityId,
+            "userQuery": "" + query
+        }
+    }, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log(body) // Show the HTML for the Google homepage.
+            parseSearchResponse(body, senderID, function(data) {
+
+            });
+        }
+    });
+}
+
+function parseSearchResponse(body, senderID, callback) {
+    var results = [];
+    for (var i = 0; i < body.projectList.length; i++) {
+        results.push({
+            title: body.projectList[i].projectName,
+            subtitle: body.projectList[i].primaryLocation + ", " + body.projectList[i].projectMinMaxPriceView + ", " + body.projectList[i].bhkOptions,
+            item_url: body.projectList[i].projectUrl,
+            image_url: body.projectList[i].projectImageUrl,
+            buttons: [{
+                type: "web_url",
+                url: body.projectList[i].projectUrl,
+                title: "Open Web URL"
+            }],
+        });
+
+    }
+
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements: results
+                }
+            }
+        }
+    };
+    console.log(messageData);
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
+
+}
+
 //SET GREETING TEXT message
 function setGreetingText() {
     console.log("Setting Greeeting text");
@@ -389,7 +445,7 @@ function receivedMessage(event) {
                 //     }
                 //     break;
             default:
-                // searchForAnswers(senderID, messageText);
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
                 break;
         }
     } else if (messageAttachments) {
