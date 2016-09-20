@@ -120,7 +120,7 @@ function searchForPayload(senderID, message, messagePayload) {
                 var newMap = new HashMap();
                 newMap.set('projectMaxPrice', item.payload.projectMaxPrice);
                 newMap.set('projectMinPrice', item.payload.projectMinPrice);
-                newMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                newMap.set('cityId', "" + usersMap.get(senderID).get('cityId'));
                 usersMap.set(senderID, newMap);
                 console.log("Sending Payload " + JSON.stringify(usersMap));
                 if (usersMap.has(senderID)) {
