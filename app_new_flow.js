@@ -120,7 +120,7 @@ function searchForPayload(senderID, message, messagePayload) {
                 var newMap = new HashMap();
                 newMap.set('projectMaxPrice', item.payload.projectMaxPrice);
                 newMap.set('projectMinPrice', item.payload.projectMinPrice);
-                newMap.set('cityId', "" + messagePayload);
+                newMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
                 usersMap.set(senderID, newMap);
                 console.log("Sending Payload " + JSON.stringify(usersMap));
                 if (usersMap.has(senderID)) {
@@ -622,6 +622,94 @@ function sendCitySelectionButtons(recipientId, callback) {
     });
 }
 
+//SEND PRICE RANGE BUTTONS
+function sendPriceRangeButtons(recipientId, cityId, callback) {
+    console.log('Sending price range buttons to ' + recipientId);
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: "what is the price range you are looking for",
+            quick_replies: [{
+                content_type: "text",
+                title: "30L - 60L",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "60L - 90L",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "90L - 1.5Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "1.5Cr - 2Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "2Cr - 4Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "4Cr - 8Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "8Cr - 15Cr",
+                payload: "" + cityId
+            }, {
+                content_type: "text",
+                title: "15Cr & above",
+                payload: "" + cityId
+            }]
+        }
+    };
+    console.log("Price range message" + JSON.stringify(messageData));
+    callSendAPI(messageData, function(data) {
+        return callback(data);
+    });
+}
+
+// SEND BHK buttons
+function sendBHKButtons(recipientId, cityId, callback) {
+    console.log('Sending BHK buttons to ' + recipientId);
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            text: "how many bed rooms you are expecting in this price range",
+            quick_replies: [{
+                content_type: "text",
+                title: "1bhk",
+                payload: "one"
+            }, {
+                content_type: "text",
+                title: "2bhk",
+                payload: "two"
+            }, {
+                content_type: "text",
+                title: "3bhk",
+                payload: "three"
+            }, {
+                content_type: "text",
+                title: "4bhk",
+                payload: "four"
+            }, {
+                content_type: "text",
+                title: "above 4bhk",
+                payload: "above"
+            }]
+        }
+    };
+    console.log("BHK message" + JSON.stringify(messageData));
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
+
 
 // What happens when user clicks on get started button
 function receivedPostback(event) {
@@ -639,6 +727,8 @@ function receivedPostback(event) {
         sendTextMessage(senderID, "finding");
     } else if (payload == '3') {
         sendTextMessage(senderID, "filtering");
+    } else if (payload === 'No-lead') {
+        sendPriceRangeButtons(senderID, function(data) {});
     } else {
         getUserNameForPersonalization(senderID);
     }
