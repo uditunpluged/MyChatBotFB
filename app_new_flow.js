@@ -477,18 +477,21 @@ function receivedMessage(event) {
             case 'Kolkata':
                 break;
             default:
-                sendTypingOn(senderID, function(data) {
-                    sendTextMessage(senderID, "searching for results ...", function(data) {
-                        var j = schedule.scheduleJob('*/5 * * * * *', function() {
+                if (message.hasOwnProperty('quick_reply')) {
 
-                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
-                            j.cancel();
+                } else {
+                    sendTypingOn(senderID, function(data) {
+                        sendTextMessage(senderID, "searching for results ...", function(data) {
+                            var j = schedule.scheduleJob('*/5 * * * * *', function() {
+
+                                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
+                                j.cancel();
+                            });
                         });
+
+
                     });
-
-
-                });
-
+                }
                 break;
         }
     } else if (messageAttachments) {
