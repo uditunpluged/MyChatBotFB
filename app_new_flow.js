@@ -395,7 +395,7 @@ function receivedMessage(event) {
         if (message.quick_reply.payload != 'Yes-Property' && message.quick_reply.payload != 'No-Property') {
             userResponses.push(messageText);
             console.log("USER RESPONSES :" + userResponses);
-            searchForPayload(senderID, messageText, message.quick_reply.payload);
+            // searchForPayload(senderID, messageText, message.quick_reply.payload);
         }
         if (message.quick_reply.payload == 'Yes-Property') {
             // userResponses.push(messageText);
