@@ -29,8 +29,7 @@ var quickRepliesArray = [];
 var quickAnswersArray = [];
 // Test
 app.get('/ping', function(req, res) {
-    fetchList("tezt");
-    sendGenericMessage("test")
+
 });
 app.use(bodyParser.json());
 
@@ -142,6 +141,14 @@ function searchForPayload(senderID, message, messagePayload) {
                     //     });
                     //
                     // });
+
+                    sendTypingOn(senderID, function(data) {
+                        var j = schedule.scheduleJob('*/6 * * * * *', function() {
+                            sendBHKButtons(senderID, function(data) {
+
+                            });
+                        });
+                    });
                 }
 
             } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount') && !item.payload.hasOwnProperty('val')) {
@@ -162,20 +169,19 @@ function searchForPayload(senderID, message, messagePayload) {
                 });
 
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                // console.log("BHK count " + JSON.stringify(usersMap));
-                // var bhkCountMap = new HashMap();
-                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
-                // usersMap.set(senderID, bhkCountMap);
+                console.log("BHK count " + JSON.stringify(usersMap));
+                var bhkCountMap = new HashMap();
+                bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                usersMap.set(senderID, bhkCountMap);
                 // //
-                // console.log('==============================================');
-                // console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
-                // console.log('==============================================');
-                // sendStatusButtons(senderID, function(data) {
-                //
-                // });
+                console.log('==============================================');
+                console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
+                console.log('==============================================');
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
+
             } else if (item.payload.hasOwnProperty('val')) {
                 // var statusMap = new HashMap();
                 // statusMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
@@ -195,14 +201,17 @@ function searchForPayload(senderID, message, messagePayload) {
     });
 }
 
-function searchForGeneralQuery(senderID, cityId, queryMessage) {
+function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount) {
     request({
         uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
         method: 'POST',
         json: {
             "city": cityId,
             "userQuery": "" + queryMessage,
-            "uid": "qwertyasdfzxcv007"
+            "uid": "qwertyasdfzxcv007",
+            "projMinPrice": minPrice,
+            "projMaxPrice": maxPrice,
+            "projBHK": bhkCount
 
         }
     }, function(error, response, body) {
@@ -471,7 +480,7 @@ function receivedMessage(event) {
                     sendTextMessage(senderID, "searching for results ...", function(data) {
                         var j = schedule.scheduleJob('*/5 * * * * *', function() {
 
-                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText);
+                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
                             j.cancel();
                         });
                     });
@@ -668,7 +677,7 @@ function sendPriceRangeButtons(recipientId, cityId, callback) {
     };
     console.log("Price range message" + JSON.stringify(messageData));
     callSendAPI(messageData, function(data) {
-        // return callback(data);
+
     });
 }
 
@@ -705,9 +714,7 @@ function sendBHKButtons(recipientId, cityId, callback) {
         }
     };
     console.log("BHK message" + JSON.stringify(messageData));
-    callSendAPI(messageData, function(data) {
-        // return callback(data);
-    });
+    callSendAPI(messageData, function(data) {});
 }
 
 
