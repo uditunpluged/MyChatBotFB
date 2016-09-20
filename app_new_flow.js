@@ -181,7 +181,7 @@ function searchForPayload(senderID, message, messagePayload) {
                 console.log('==============================================');
                 console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
                 console.log('==============================================');
-                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "looking", usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
 
             } else if (item.payload.hasOwnProperty('val')) {
                 // var statusMap = new HashMap();
