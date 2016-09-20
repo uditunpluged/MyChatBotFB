@@ -215,6 +215,7 @@ function searchForGeneralQuery(senderID, cityId, queryMessage) {
                         sendYesOrNoButton(senderID, function(data) {
 
                         });
+                        j.cancel();
                     });
                 });
             } else {
