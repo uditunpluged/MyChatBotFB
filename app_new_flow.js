@@ -215,8 +215,9 @@ function searchForGeneralQuery(senderID, cityId, queryMessage) {
                         sendYesOrNoButton(senderID, function(data) {
 
                         });
-                        j.cancel();
                     });
+                    j.cancel();
+
                 });
             } else {
                 sendTextMessage(senderID, "No relevant results were found!", function(data) {
