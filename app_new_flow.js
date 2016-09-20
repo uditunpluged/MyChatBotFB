@@ -170,18 +170,18 @@ function searchForPayload(senderID, message, messagePayload) {
                 });
 
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                // console.log("BHK count " + JSON.stringify(usersMap));
-                // var bhkCountMap = new HashMap();
-                // bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                // bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                // bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                // bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
-                // usersMap.set(senderID, bhkCountMap);
-                // // //
-                // console.log('==============================================');
-                // console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
-                // console.log('==============================================');
-                // searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "looking", usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
+                console.log("BHK count " + JSON.stringify(usersMap));
+                var bhkCountMap = new HashMap();
+                bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                bhkCountMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                bhkCountMap.set('bhkCount', "" + item.payload.bhkCount);
+                usersMap.set(senderID, bhkCountMap);
+                // //
+                console.log('==============================================');
+                console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
+                console.log('==============================================');
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "looking", usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
 
             } else if (item.payload.hasOwnProperty('val')) {
                 // var statusMap = new HashMap();
