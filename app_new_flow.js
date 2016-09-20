@@ -668,7 +668,7 @@ function sendPriceRangeButtons(recipientId, cityId, callback) {
     };
     console.log("Price range message" + JSON.stringify(messageData));
     callSendAPI(messageData, function(data) {
-        return callback(data);
+        // return callback(data);
     });
 }
 
