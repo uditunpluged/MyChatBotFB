@@ -211,7 +211,11 @@ function searchForGeneralQuery(senderID, cityId, queryMessage) {
             if (body.message === 'success') {
 
                 parseSearchResponse(body, senderID, function(data) {
+                    var j = schedule.scheduleJob('*/15 * * * * *', function() {
+                        sendYesOrNoButton(senderID, function(data) {
 
+                        });
+                    });
                 });
             } else {
                 sendTextMessage(senderID, "No relevant results were found!", function(data) {
@@ -223,6 +227,8 @@ function searchForGeneralQuery(senderID, cityId, queryMessage) {
         }
     });
 }
+
+
 
 function parseSearchResponse(body, senderID, callback) {
     var results = [];
@@ -523,6 +529,39 @@ function sendTextMessage(recipientId, messageText, callback) {
     });
 }
 
+//SEND YES OR NO BUTTONS
+function sendYesOrNoButton(recipientId, callback) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "Did you like any of the above or would you like us to help you more",
+                    buttons: [{
+                        type: "postback",
+                        title: "Yes",
+                        payload: "Yes-lead"
+                    }, {
+                        type: "postback",
+                        title: "Help me more",
+                        payload: "No-lead"
+                    }]
+                }
+            }
+        }
+    }
+
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+
+}
+
+//SEND CITY SELECTION BUTTONS
 function sendCitySelectionButtons(recipientId, callback) {
     console.log('Sending city buutons to ' + recipientId);
     var messageData = {
