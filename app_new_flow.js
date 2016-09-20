@@ -147,6 +147,7 @@ function searchForPayload(senderID, message, messagePayload) {
                             sendBHKButtons(senderID, function(data) {
 
                             });
+                            j.cancel();
                         });
                     });
                 }
