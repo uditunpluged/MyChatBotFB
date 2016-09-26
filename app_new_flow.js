@@ -94,7 +94,10 @@ function getUserNameForPersonalization(uid) {
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
                 sendTypingOn(uid, function(data) {
                     var j = schedule.scheduleJob('*/10 * * * * *', function() {
-                        sendCitySelectionButtons(uid, function(data) {
+                        // sendCitySelectionButtons(uid, function(data) {
+                        //
+                        // });
+                        accountLinking(uid, function(data) {
 
                         });
                         j.cancel();
@@ -543,6 +546,35 @@ function sendTextMessage(recipientId, messageText, callback) {
     callSendAPI(messageData, function(data) {
         return callback(data);
     });
+}
+//Send Account linking
+function accountLinking(recipientId, callback) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "generic",
+                    elements: [{
+                        title: "Please fill this form",
+                        image_url: "http://www.example.com/images/m-bank.png",
+                        buttons: [{
+                            type: "account_link",
+                            url: "http://www.squareyards.com/contactus"
+                        }]
+                    }]
+                }
+            }
+        }
+    };
+
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+
 }
 
 //SEND YES OR NO BUTTONS
