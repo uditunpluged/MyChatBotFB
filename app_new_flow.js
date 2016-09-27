@@ -94,12 +94,10 @@ function getUserNameForPersonalization(uid) {
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
                 sendTypingOn(uid, function(data) {
                     var j = schedule.scheduleJob('*/10 * * * * *', function() {
-                        // sendCitySelectionButtons(uid, function(data) {
-                        //
-                        // });
-                        accountLinking(uid, function(data) {
+                        sendCitySelectionButtons(uid, function(data) {
 
                         });
+                        // accountLinking(uid,function(data){});
                         j.cancel();
                     });
                 });
@@ -869,4 +867,4 @@ function sendTypingOff(recipientId) {
 
 
 
-app.listen(process.env.PORT || 4000);
+app.listen(process.env.PORT || 4000);;
