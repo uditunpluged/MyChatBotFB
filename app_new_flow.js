@@ -20,7 +20,7 @@ firebase.initializeApp(config);
 var rootRef = firebase.database().ref();
 console.log("Started new app");
 
-
+console.log(encodeURIComponent("ha bai kidaa ki haal chaal hai!".trim()));
 
 
 //Store User response
@@ -31,7 +31,18 @@ var quickAnswersArray = [];
 app.get('/ping', function(req, res) {
 
 });
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: false
+}))
+
+// parse application/json
+app.use(bodyParser.json())
+
+app.use(function(req, res) {
+    res.setHeader('Content-Type', 'text/plain')
+    res.write('you posted:\n')
+    res.end(JSON.stringify(req.body, null, 2))
+})
 
 //TO LET FACEBOOK VERIFY OUR HOOK
 app.get('/webhook', function(req, res) {
@@ -49,7 +60,6 @@ app.get('/webhook', function(req, res) {
 
 
 
-
 // SET GREETING AS WELL AS PERSISTENT MENU
 setGreetingText();
 setPersistentMenu();
@@ -57,6 +67,44 @@ quickReplies();
 quickAnswersArrayFetch();
 // searchResponse("uk", "looking for property in Gurgaon");
 // searchResponse("uk", "apartment");
+
+function askWit(senderID, message) {
+    request({
+        uri: 'https://api.wit.ai/message?v=20160927&q=' + encodeURIComponent(message.trim()),
+        method: 'get',
+        headers: {
+            'Authorization': "Bearer YHZHWVXOW6MIU76D75N6WLA5JZKAEXRC"
+        }
+
+    }, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+
+            // console.log(JSON.parse(body)._text); // Show the HTML for the Google homepage.
+            redirectUserToDifferentResponses(senderID, body);
+        }
+    });
+}
+
+function redirectUserToDifferentResponses(senderID, bodyMes) {
+    var intentType = JSON.parse(bodyMes);
+    console.log("Intent : " +
+        intentType.entities.intent[0].value);
+    console.log("Intent : " +
+        intentType.entities.search_query[0].value);
+    switch (intentType.entities.intent[0].value) {
+
+        case 'looking':
+            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), intentType.entities.search_query[0].value, "", "", "");
+            break;
+        case 'problem':
+            break;
+        case 'help':
+            break;
+        case 'referral':
+            break;
+    }
+
+}
 
 
 function quickAnswersArrayFetch() {
@@ -485,7 +533,8 @@ function receivedMessage(event) {
                         sendTextMessage(senderID, "searching for results ...", function(data) {
                             var j = schedule.scheduleJob('*/5 * * * * *', function() {
 
-                                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
+                                // searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
+                                askWit(senderID, message);
                                 j.cancel();
                             });
                         });
