@@ -79,7 +79,7 @@ function askWit(senderID, message) {
     }, function(error, response, body) {
         if (!error && response.statusCode == 200) {
 
-            // console.log(JSON.parse(body)._text); // Show the HTML for the Google homepage.
+            // console.log(JSON.parse(body)._text); 
             redirectUserToDifferentResponses(senderID, body);
         }
     });
