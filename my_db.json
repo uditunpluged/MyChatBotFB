@@ -1,15 +1,15 @@
 {
   "questions" : [ {
     "answer" : "Hi! \nHow can I assist you?",
-    "methodType":"hi",
+    "methodType" : "hi",
     "userMessage" : "Hi!Hello! hi , hello ,howdy "
   }, {
     "answer" : "Sure, I will be happy to assist you regarding your query on property search in that location. \nPlease type the name of your desired location, I'll try searching for you",
-    "methodType":"generic",
+    "methodType" : "generic",
     "userMessage" : "looking property BHK apartment flat home house plot villa penthouse well occupied move possession advanced mid early new "
   }, {
     "answer" : "",
-    "methodType":"search",
+    "methodType" : "search",
     "userMessage" : ""
   }, {
     "answer" : "Sir please gaali mat do. Aisa to mat karo yaar.",
@@ -73,8 +73,8 @@
     "title" : "Delhi"
   }, {
     "content_type" : "text",
-    "payload" : "other",
-    "title" : "other"
+    "payload" : "15",
+    "title" : "Hyderabad"
   }, {
     "content_type" : "text",
     "payload" : {
@@ -131,79 +131,79 @@
       "projectMinPrice" : "150000000"
     },
     "title" : "15Cr & above"
-  } ,{
-      "content_type": "text",
-      "title": "1bhk",
-      "payload": {
-        "bhkCount":"one"
-      }
   }, {
-      "content_type": "text",
-      "title": "2bhk",
-      "payload": {
-        "bhkCount":"two"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "bhkCount" : "1 BHK"
+    },
+    "title" : "1bhk"
   }, {
-      "content_type": "text",
-      "title": "3bhk",
-      "payload": {
-        "bhkCount":"three"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "bhkCount" : "2 BHK"
+    },
+    "title" : "2bhk"
   }, {
-      "content_type": "text",
-      "title": "4bhk",
-      "payload": {
-        "bhkCount":"four"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "bhkCount" : "3 BHK"
+    },
+    "title" : "3bhk"
   }, {
-      "content_type": "text",
-      "title": "above 4bhk",
-      "payload": {
-        "bhkCount":"above"
-      }
-  },{
-      "content_type": "text",
-      "title": "New Launch",
-      "payload": {
-        "val" :"nl"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "bhkCount" : "4 BHK"
+    },
+    "title" : "4bhk"
   }, {
-      "content_type": "text",
-      "title": "Early Stage",
-      "payload": {
-        "val":"es"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "bhkCount" : "5 above"
+    },
+    "title" : "above 4bhk"
   }, {
-      "content_type": "text",
-      "title": "Mid Stage",
-      "payload": {
-        "val":"ms"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "val" : "New Launch"
+    },
+    "title" : "New Launch"
   }, {
-      "content_type": "text",
-      "title": "Advanced Stage",
-      "payload": {
-        "val":"as"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Early Stage"
+    },
+    "title" : "Early Stage"
   }, {
-      "content_type": "text",
-      "title": "Near Possesion",
-      "payload": {
-        "val":"np"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Mid Stage"
+    },
+    "title" : "Mid Stage"
   }, {
-      "content_type": "text",
-      "title": "Ready to Move",
-      "payload": {
-        "val":"rtm"
-      }
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Advanced Stage"
+    },
+    "title" : "Advanced Stage"
   }, {
-      "content_type": "text",
-      "title": "Well Occupied",
-      "payload": {
-        "val":"wo"
-      }
-  }],
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Near Possession"
+    },
+    "title" : "Near Possession"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Ready to Move"
+    },
+    "title" : "Ready to Move"
+  }, {
+    "content_type" : "text",
+    "payload" : {
+      "val" : "Well Occupied"
+    },
+    "title" : "Well Occupied"
+  } ],
   "useranswers" : {
     "cityId" : "",
     "pageno" : "1"

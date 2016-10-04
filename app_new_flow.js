@@ -19,8 +19,8 @@ var config = {
 firebase.initializeApp(config);
 var rootRef = firebase.database().ref();
 console.log("Started new app");
-
-console.log(encodeURIComponent("ha bai kidaa ki haal chaal hai!".trim()));
+var myOnj = "or bhai kya hal hai";
+console.log(encodeURIComponent(myOnj.trim()));
 
 
 //Store User response
@@ -38,11 +38,6 @@ app.use(bodyParser.urlencoded({
 // parse application/json
 app.use(bodyParser.json())
 
-app.use(function(req, res) {
-    res.setHeader('Content-Type', 'text/plain')
-    res.write('you posted:\n')
-    res.end(JSON.stringify(req.body, null, 2))
-})
 
 //TO LET FACEBOOK VERIFY OUR HOOK
 app.get('/webhook', function(req, res) {
@@ -57,8 +52,12 @@ app.get('/webhook', function(req, res) {
 });
 
 
-
-
+// usersMap.set("121", "");
+// usersMap.set("122", "");
+// var firstMap = new HashMap();
+// firstMap.set('cityId', "udit");
+// usersMap.set("121", firstMap);
+// console.log(usersMap.get("122").search('cityId'));
 
 // SET GREETING AS WELL AS PERSISTENT MENU
 setGreetingText();
@@ -68,43 +67,128 @@ quickAnswersArrayFetch();
 // searchResponse("uk", "looking for property in Gurgaon");
 // searchResponse("uk", "apartment");
 
-function askWit(senderID, message) {
+function isEmptyObject(obj) {
+    for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function askWit(senderID, messageData) {
     request({
-        uri: 'https://api.wit.ai/message?v=20160927&q=' + encodeURIComponent(message.trim()),
+        uri: 'https://api.wit.ai/message?v=20160927&q=' + encodeURIComponent(messageData.trim()),
         method: 'get',
         headers: {
             'Authorization': "Bearer YHZHWVXOW6MIU76D75N6WLA5JZKAEXRC"
         }
-
     }, function(error, response, body) {
         if (!error && response.statusCode == 200) {
+            console.log('https://api.wit.ai/message?v=20160927&q=' + encodeURIComponent(messageData.trim()));
 
-            // console.log(JSON.parse(body)._text); 
-            redirectUserToDifferentResponses(senderID, body);
+            console.log(body);
+            redirectUserToDifferentResponses(senderID, body, messageData);
         }
     });
 }
 
-function redirectUserToDifferentResponses(senderID, bodyMes) {
+function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
     var intentType = JSON.parse(bodyMes);
-    console.log("Intent : " +
-        intentType.entities.intent[0].value);
-    console.log("Intent : " +
-        intentType.entities.search_query[0].value);
-    switch (intentType.entities.intent[0].value) {
+    if (intentType.entities.hasOwnProperty('intent')) {
+        switch (intentType.entities.intent[0].value) {
 
-        case 'looking':
-            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), intentType.entities.search_query[0].value, "", "", "");
-            break;
-        case 'problem':
-            break;
-        case 'help':
-            break;
-        case 'referral':
-            break;
+            case 'looking':
+
+                if (intentType.entities.hasOwnProperty('search_query')) {
+                    sendTextMessage(senderID, "searching for results ...", function(data) {
+                        var j = schedule.scheduleJob('*/5 * * * * *', function() {
+                            if (usersMap.get(senderID).search('cityId') !== -1) {
+                                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), intentType.entities.search_query[0].value, "", "", "");
+                            } else {
+                                searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
+
+                            }
+                            j.cancel();
+                        });
+                    });
+
+                }
+                // if (intentType.entities.hasOwnProperty('city')) {
+                //     sendTextMessage(senderID, intentType.entities.city[0].value);
+                // }
+
+                break;
+            case 'problem':
+                sendEnquiryForm(senderID, function(data) {
+
+                });
+                break;
+            case 'help':
+                sendEnquiryForm(senderID, function(data) {
+
+                });
+                break;
+            case 'referral':
+                sendEnquiryForm(senderID, function(data) {
+
+                });
+                break;
+            case 'greet':
+                if (intentType.entities.hasOwnProperty('name')) {
+
+                    sendTextMessage(senderID, "Hello! " + intentType.entities.name[0].value + ". How Can I help you?", function(data) {
+                        sendCitySelectionButtons(senderID, "Please choose a city ... ", function(data) {
+
+                        });
+                    });
+                } else {
+                    sendTextMessage(senderID, "Hello! How Can I help you?", function(data) {
+                        sendCitySelectionButtons(senderID, "Please choose a city ... ", function(data) {
+
+                        });
+                    });
+                }
+                break;
+
+            default:
+                sendTextMessage(senderID, "searching for results ...", function(data) {
+                    var j = schedule.scheduleJob('*/5 * * * * *', function() {
+                        // console.log("CITY ID : " + usersMap.get(senderID).get('cityId'));
+
+                        if (usersMap.get(senderID).search('cityId') !== -1) {
+                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
+                        } else {
+
+                            searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
+
+                        }
+                        j.cancel();
+                    });
+                });
+                break;
+        }
+    } else {
+        // sendTextMessage(senderID, "I am unable to decipher your request, can you be a bit brief", function(data) {});
+        sendTextMessage(senderID, "searching for results ...", function(data) {
+            var j = schedule.scheduleJob('*/5 * * * * *', function() {
+                // console.log("CITY ID : " + usersMap.get(senderID).get('cityId'));
+
+                if (usersMap.get(senderID).search('cityId') !== -1) {
+                    searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
+                } else {
+                    console.log("City not Selected");
+
+                    searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
+
+                }
+                j.cancel();
+            });
+        });
     }
-
 }
+
+
 
 
 function quickAnswersArrayFetch() {
@@ -142,10 +226,10 @@ function getUserNameForPersonalization(uid) {
             sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
                 sendTypingOn(uid, function(data) {
                     var j = schedule.scheduleJob('*/10 * * * * *', function() {
-                        sendCitySelectionButtons(uid, function(data) {
+                        sendCitySelectionButtons(uid, "which city are you looking to invest in ..", function(data) {
 
                         });
-                        // accountLinking(uid,function(data){});
+
                         j.cancel();
                     });
                 });
@@ -219,7 +303,6 @@ function searchForPayload(senderID, message, messagePayload) {
                 });
 
             } else if (item.payload.hasOwnProperty('bhkCount')) {
-                console.log("BHK count " + JSON.stringify(usersMap));
                 var bhkCountMap = new HashMap();
                 bhkCountMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
                 bhkCountMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
@@ -228,9 +311,11 @@ function searchForPayload(senderID, message, messagePayload) {
                 usersMap.set(senderID, bhkCountMap);
                 // //
                 console.log('==============================================');
-                console.log("BHK COUnT : " + bhkCountMap.get("cityId"));
+                console.log("BHK COUnT : " + bhkCountMap.get("bhkCount"));
+                console.log("BHK count " + JSON.stringify(usersMap));
+
                 console.log('==============================================');
-                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "looking", usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('bhkCount'));
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "", usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('bhkCount'));
 
             } else if (item.payload.hasOwnProperty('val')) {
                 // var statusMap = new HashMap();
@@ -252,19 +337,31 @@ function searchForPayload(senderID, message, messagePayload) {
 }
 
 function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount) {
+    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    console.log("Searching with following params");
+    console.log("Search : " + queryMessage);
+    console.log("maxPrice" + maxPrice);
+    console.log("minPrice" + minPrice);
+    console.log("bhkCount" + bhkCount);
+    console.log("cityId" + cityId);
+    console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    var myJson = {
+        "city": "" + cityId,
+        "userQuery": "" + queryMessage,
+        "uid": "qwertyasdfzxcv007",
+        "projMinPrice": minPrice,
+        "projMaxPrice": maxPrice,
+        "projBHK": bhkCount,
+        "projStatus": ""
+    };
+    console.log(myJson);
     request({
         uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
         method: 'POST',
-        json: {
-            "city": cityId,
-            "userQuery": "" + queryMessage,
-            "uid": "qwertyasdfzxcv007",
-            "projMinPrice": minPrice,
-            "projMaxPrice": maxPrice,
-            "projBHK": bhkCount
-
-        }
+        json: myJson
     }, function(error, response, body) {
+        console.log("If ther's error : " + error) // Show the HTML for the Google homepage.
+
         if (!error && response.statusCode == 200) {
             console.log(body) // Show the HTML for the Google homepage.
             if (body.message === 'success') {
@@ -282,10 +379,68 @@ function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPric
             } else {
                 sendTextMessage(senderID, "No relevant results were found!", function(data) {
                     sendTextMessage(senderID, "Please try searching with different key words.", function(data) {
+                        var j = schedule.scheduleJob('*/5 * * * * *', function() {
+
+                            sendHandPickedDeals(senderID, function(data) {
+
+                            });
+                            j.cancel();
+                        });
+                    });
+                });
+            }
+        }
+    });
+}
+
+function searchForEmptyGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount) {
+    // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    // console.log("Searching with following params");
+    // console.log("Search : " + queryMessage);
+    // console.log("" + maxPrice);
+    // console.log("" + minPrice);
+    // console.log("" + bhkCount);
+    // console.log("" + cityId);
+    // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    request({
+        uri: 'http://api-uat.squareyards.com/BotSyrdCloudApi-0.1/botSearch/getBotSearch',
+        method: 'POST',
+        json: {
+            "city": "" + cityId,
+            "userQuery": "" + queryMessage,
+            "uid": "qwertyasdfzxcv007",
+            "projMinPrice": minPrice,
+            "projMaxPrice": maxPrice,
+            "projBHK": bhkCount
+
+        }
+    }, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            console.log(body) // Show the HTML for the Google homepage.
+            if (body.message === 'success') {
+
+                parseSearchResponse(body, senderID, function(data) {
+                    var firstMap = new HashMap();
+                    firstMap.set('cityId', "" + body.projectList[0].cityId);
+                    usersMap.set(senderID, firstMap);
+                    var j = schedule.scheduleJob('*/15 * * * * *', function() {
+                        sendYesOrNoButton(senderID, function(data) {
+
+                        });
+                        j.cancel();
+
+                    });
+
+                });
+            } else {
+                sendTextMessage(senderID, "No relevant results were found!", function(data) {
+                    sendCitySelectionButtons(senderID, "please select a city ..", function(data) {
 
                     });
                 });
             }
+        } else {
+            console.log("There's a problem!");
         }
     });
 }
@@ -354,15 +509,15 @@ function setPersistentMenu() {
         "call_to_actions": [{
             "type": "postback",
             "title": "Help",
-            "payload": "1"
+            "payload": "help"
         }, {
             "type": "postback",
-            "title": "Buy a property",
-            "payload": "2"
+            "title": "Select City",
+            "payload": "select-city"
         }, {
             "type": "postback",
-            "title": "Filters",
-            "payload": "3"
+            "title": "Call",
+            "payload": "call"
         }]
     };
     setThread(jsonObject);
@@ -523,21 +678,34 @@ function receivedMessage(event) {
                 //         sendCitySelectionButtons(senderID);
                 //     }
                 //     break;
+            case 'Gurgaon':
+                break;
             case 'Kolkata':
+                break;
+            case 'Mumbai':
+                break;
+            case 'Bangalore':
+                break;
+            case 'Noida':
+                break;
+            case 'Pune':
+                break;
+            case 'Chennai':
+                break;
+            case 'Ahmedabad':
+                break;
+            case 'Delhi':
+                break;
+            case 'Hyderabad':
                 break;
             default:
                 if (message.hasOwnProperty('quick_reply')) {
 
                 } else {
                     sendTypingOn(senderID, function(data) {
-                        sendTextMessage(senderID, "searching for results ...", function(data) {
-                            var j = schedule.scheduleJob('*/5 * * * * *', function() {
 
-                                // searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
-                                askWit(senderID, message);
-                                j.cancel();
-                            });
-                        });
+                        // searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageText, "", "", "");
+                        askWit(senderID, messageText);
 
 
                     });
@@ -577,6 +745,60 @@ function callSendAPI(messageData, callback) {
         }
     });
 }
+
+function sendEnquiryForm(senderID, callback) {
+    var messageData = {
+        recipient: {
+            id: senderID
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "In that case we would like to talk to you in person, please fill the form & mention the query in detail, We'll definetely get back to you soon ",
+                    buttons: [{
+                        type: "web_url",
+                        url: "http://www.squareyards.com/contactus?key=help",
+                        title: "Open Web URL"
+                    }]
+                }
+            }
+        }
+    }
+
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
+
+
+function sendHandPickedDeals(senderID, callback) {
+    var messageData = {
+        recipient: {
+            id: senderID
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "You can also check some of our handpicked deals",
+                    buttons: [{
+                        type: "web_url",
+                        url: "http://www.squareyards.com/deals",
+                        title: "Suggested Deals"
+                    }]
+                }
+            }
+        }
+    }
+
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
+
 
 
 // SEND MESSAGES OF DIFFERENt TYPES
@@ -636,15 +858,18 @@ function sendYesOrNoButton(recipientId, callback) {
                 payload: {
                     template_type: "button",
                     text: "Did you like any of the above or would you like us to help you more",
-                    buttons: [{
-                        type: "postback",
-                        title: "Yes",
-                        payload: "Yes-lead"
-                    }, {
-                        type: "postback",
-                        title: "Help me more",
-                        payload: "No-lead"
-                    }]
+                    buttons: [
+                        //   {
+                        //     type: "postback",
+                        //     title: "Yes",
+                        //     payload: "Yes-lead"
+                        // },
+                        {
+                            type: "postback",
+                            title: "Help me more",
+                            payload: "No-lead"
+                        }
+                    ]
                 }
             }
         }
@@ -657,14 +882,14 @@ function sendYesOrNoButton(recipientId, callback) {
 }
 
 //SEND CITY SELECTION BUTTONS
-function sendCitySelectionButtons(recipientId, callback) {
+function sendCitySelectionButtons(recipientId, textInfo, callback) {
     console.log('Sending city buutons to ' + recipientId);
     var messageData = {
         recipient: {
             id: recipientId
         },
         message: {
-            text: "which city are you looking to invest in ..",
+            text: "" + textInfo,
             quick_replies: [{
                 content_type: "text",
                 title: "Gurgaon",
@@ -703,8 +928,8 @@ function sendCitySelectionButtons(recipientId, callback) {
                 title: "Delhi"
             }, {
                 content_type: "text",
-                payload: "other",
-                title: "other"
+                payload: "15",
+                title: "Hyderabad"
             }]
         }
     };
@@ -776,23 +1001,23 @@ function sendBHKButtons(recipientId, cityId, callback) {
             quick_replies: [{
                 content_type: "text",
                 title: "1bhk",
-                payload: "one"
+                payload: "1 BHK"
             }, {
                 content_type: "text",
                 title: "2bhk",
-                payload: "two"
+                payload: "2 BHK"
             }, {
                 content_type: "text",
                 title: "3bhk",
-                payload: "three"
+                payload: "3 BHK"
             }, {
                 content_type: "text",
                 title: "4bhk",
-                payload: "four"
+                payload: "4 BHK"
             }, {
                 content_type: "text",
                 title: "above 4bhk",
-                payload: "above"
+                payload: "5 above"
             }]
         }
     };
@@ -800,6 +1025,31 @@ function sendBHKButtons(recipientId, cityId, callback) {
     callSendAPI(messageData, function(data) {});
 }
 
+// SEND CALL button
+function sendCallMeButton(recipientId) {
+    var messageData = {
+        recipient: {
+            id: recipientId
+        },
+        message: {
+            attachment: {
+                type: "template",
+                payload: {
+                    template_type: "button",
+                    text: "Need further assistance? Talk to a representative",
+                    buttons: [{
+                        type: "phone_number",
+                        title: "Call Representative",
+                        payload: "18002083344"
+                    }]
+                }
+            }
+        }
+    };
+    callSendAPI(messageData, function(data) {
+        // return callback(data);
+    });
+}
 
 // What happens when user clicks on get started button
 function receivedPostback(event) {
@@ -811,12 +1061,16 @@ function receivedPostback(event) {
     // // button for Structured Messages.
     var payload = event.postback.payload;
 
-    if (payload == '1') {
-        sendGenericMessage(senderID);
-    } else if (payload == '2') {
-        sendTextMessage(senderID, "finding");
-    } else if (payload == '3') {
-        sendTextMessage(senderID, "filtering");
+    if (payload == 'help') {
+        sendEnquiryForm(senderID, function(data) {
+
+        });
+    } else if (payload == 'select-city') {
+        sendCitySelectionButtons(senderID, "please choose a city..", function(data) {
+
+        });
+    } else if (payload == 'call') {
+        sendCallMeButton(senderID);
     } else if (payload === 'No-lead') {
         sendPriceRangeButtons(senderID, function(data) {});
     } else {
