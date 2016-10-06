@@ -203,6 +203,22 @@
       "val" : "Well Occupied"
     },
     "title" : "Well Occupied"
+  },{
+      "content_type": "text",
+      "title": "Independent floor",
+      "payload": {"type":"Ind Floor"}
+  }, {
+      "content_type": "text",
+      "title": "Apartment",
+      "payload": {"type":"Apartment"}
+  }, {
+      "content_type": "text",
+      "title": "Villa",
+      "payload": {"type":"Villa"}
+  }, {
+      "content_type": "text",
+      "title": "House",
+      "payload": {"type":"House"}
   } ],
   "useranswers" : {
     "cityId" : "",

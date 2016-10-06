@@ -142,7 +142,7 @@ function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
                                 if (item.payload == usersMap.get(senderID).get('cityId')) {
                                     sendTextMessage(senderID, "searching for results ...", function(data) {
                                         var j = schedule.scheduleJob('*/5 * * * * *', function() {
-                                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "", "");
+                                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
                                             j.cancel();
 
                                         });
@@ -151,7 +151,7 @@ function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
                                     sendTextMessage(senderID, "searching for results ...", function(data) {
                                         var j = schedule.scheduleJob('*/5 * * * * *', function() {
                                             console.log("EMPTY Query");
-                                            searchForEmptyGeneralQuery(senderID, 0, messageData, "", "", "", "");
+                                            searchForEmptyGeneralQuery(senderID, 0, messageData, "", "", "");
                                             j.cancel();
 
                                         });
@@ -169,9 +169,9 @@ function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
                     sendTextMessage(senderID, "searching for results ...", function(data) {
                         var j = schedule.scheduleJob('*/5 * * * * *', function() {
                             if (usersMap.get(senderID).search('cityId') !== -1) {
-                                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "", "");
+                                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
                             } else {
-                                searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "", "");
+                                searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
 
                             }
                             j.cancel();
@@ -215,21 +215,16 @@ function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
                 }
                 break;
 
-            case 'interested':
-                sendLeadForm(senderID, function(data) {
-
-                });
-                break;
             default:
                 sendTextMessage(senderID, "searching for results ...", function(data) {
                     var j = schedule.scheduleJob('*/5 * * * * *', function() {
                         // console.log("CITY ID : " + usersMap.get(senderID).get('cityId'));
 
                         if (usersMap.get(senderID).search('cityId') !== -1) {
-                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "", "");
+                            searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
                         } else {
 
-                            searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "", "");
+                            searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
 
                         }
                         j.cancel();
@@ -244,11 +239,11 @@ function redirectUserToDifferentResponses(senderID, bodyMes, messageData) {
                 // console.log("CITY ID : " + usersMap.get(senderID).get('cityId'));
 
                 if (usersMap.get(senderID).search('cityId') !== -1) {
-                    searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "", "");
+                    searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), messageData, "", "", "");
                 } else {
                     console.log("City not Selected");
 
-                    searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "", "");
+                    searchForEmptyGeneralQuery(senderID, "0", messageData, "", "", "");
 
                 }
                 j.cancel();
@@ -337,6 +332,19 @@ function searchForPayload(senderID, message, messagePayload) {
                     console.log("min Price : " + JSON.stringify(usersMap.get(senderID).get("projectMinPrice")));
                     console.log("cityId : " + usersMap.get(senderID).get("cityId"));
 
+                    // fetchList(senderID, usersMap.get(senderID).get("cityId"), usersMap.get(senderID).get("projectMaxPrice"), usersMap.get(senderID).get("projectMinPrice"), function(data) {
+                    //     quickRepliesArray.filter(function(item) {
+                    //         if (item.payload == usersMap.get(senderID).get("cityId")) {
+                    //             sendTextMessage(senderID, "Let me know a bit more about what you are looking in " + item.title, function(data) {
+                    //
+                    //                 sendBHKButtons(senderID, function(data) {
+                    //                     // return callback(data);
+                    //                 });
+                    //             });
+                    //         }
+                    //     });
+                    //
+                    // });
 
                     sendTypingOn(senderID, function(data) {
                         var j = schedule.scheduleJob('*/6 * * * * *', function() {
@@ -348,7 +356,7 @@ function searchForPayload(senderID, message, messagePayload) {
                     });
                 }
 
-            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount') && !item.payload.hasOwnProperty('type')) {
+            } else if (!item.payload.hasOwnProperty('projectMaxPrice') && !item.payload.hasOwnProperty('projectMinPrice') && item.payload !== "other" && !item.payload.hasOwnProperty('bhkCount') && !item.payload.hasOwnProperty('val')) {
                 console.log("CITY ID", item.payload);
                 var firstMap = new HashMap();
                 firstMap.set('cityId', "" + item.payload);
@@ -378,36 +386,28 @@ function searchForPayload(senderID, message, messagePayload) {
                 console.log("BHK count " + JSON.stringify(usersMap));
 
                 console.log('==============================================');
+                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "", usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('bhkCount'));
 
-                sendTypingOn(senderID, function(data) {
-                    var j = schedule.scheduleJob('*/6 * * * * *', function() {
-                        sendUnitTypeButtons(senderID, function(data) {
-
-                        });
-                        j.cancel();
-                    });
-                });
-
-            } else if (item.payload.hasOwnProperty('type')) {
-                var statusMap = new HashMap();
-                statusMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
-                statusMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
-                statusMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
-                statusMap.set('bhkCount', "" + usersMap.get(senderID).get("bhkCount"));
-                statusMap.set('type', "" + item.payload.type);
-                usersMap.set(senderID, statusMap);
+            } else if (item.payload.hasOwnProperty('val')) {
+                // var statusMap = new HashMap();
+                // statusMap.set('projectMaxPrice', usersMap.get(senderID).get("projectMaxPrice"));
+                // statusMap.set('projectMinPrice', usersMap.get(senderID).get("projectMinPrice"));
+                // statusMap.set('cityId', "" + usersMap.get(senderID).get("cityId"));
+                // statusMap.set('bhkCount', "" + usersMap.get(senderID).get("bhkCount"));
+                // statusMap.set('status', "" + item.payload.val);
+                // usersMap.set(senderID, statusMap);
                 // //
-                console.log('==============================================');
-                console.log("type Id : " + usersMap.get(senderID).get("type"));
-                console.log('==============================================');
-                searchForGeneralQuery(senderID, usersMap.get(senderID).get('cityId'), "", usersMap.get(senderID).get('projectMaxPrice'), usersMap.get(senderID).get('projectMinPrice'), usersMap.get(senderID).get('bhkCount'), usersMap.get(senderID).get('type'));
+                // console.log('==============================================');
+                // console.log("BHK count " + JSON.stringify(usersMap));
+                // console.log("City Id : " + usersMap.get(senderID).get("bhkCount") + " Status " + usersMap.get(senderID).get("status"));
+                // console.log('==============================================');
 
             }
         }
     });
 }
 
-function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount, unitType) {
+function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount) {
     console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     console.log("Searching with following params");
     console.log("Search : " + queryMessage);
@@ -423,8 +423,7 @@ function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPric
         "projMinPrice": minPrice,
         "projMaxPrice": maxPrice,
         "projBHK": bhkCount,
-        "projStatus": "",
-        "projUnitType": unitType
+        "projStatus": ""
     };
     console.log(myJson);
     request({
@@ -465,7 +464,7 @@ function searchForGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPric
     });
 }
 
-function searchForEmptyGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount, unitType) {
+function searchForEmptyGeneralQuery(senderID, cityId, queryMessage, maxPrice, minPrice, bhkCount) {
     // console.log("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     // console.log("Searching with following params");
     // console.log("Search : " + queryMessage);
@@ -483,9 +482,7 @@ function searchForEmptyGeneralQuery(senderID, cityId, queryMessage, maxPrice, mi
             "uid": "qwertyasdfzxcv007",
             "projMinPrice": minPrice,
             "projMaxPrice": maxPrice,
-            "projBHK": bhkCount,
-            "projStatus": "",
-            "projUnitType": unitType
+            "projBHK": bhkCount
 
         }
     }, function(error, response, body) {
@@ -752,20 +749,26 @@ function receivedMessage(event) {
                 //         sendCitySelectionButtons(senderID);
                 //     }
                 //     break;
-
-            case 'no':
-                sendEnquiryForm(senderID, function(data) {});
+            case 'Gurgaon':
                 break;
-
-            case 'No':
-                sendEnquiryForm(senderID, function(data) {});
+            case 'Kolkata':
                 break;
-
-            case 'NO':
-                sendEnquiryForm(senderID, function(data) {});
+            case 'Mumbai':
                 break;
-
-
+            case 'Bangalore':
+                break;
+            case 'Noida':
+                break;
+            case 'Pune':
+                break;
+            case 'Chennai':
+                break;
+            case 'Ahmedabad':
+                break;
+            case 'Delhi':
+                break;
+            case 'Hyderabad':
+                break;
             default:
                 if (message.hasOwnProperty('quick_reply')) {
 
@@ -829,32 +832,6 @@ function sendEnquiryForm(senderID, callback) {
                         type: "web_url",
                         url: "http://www.squareyards.com/contactus?key=help",
                         title: "Open Web URL"
-                    }]
-                }
-            }
-        }
-    }
-
-    callSendAPI(messageData, function(data) {
-        // return callback(data);
-    });
-}
-
-function sendLeadForm(senderID, callback) {
-    var messageData = {
-        recipient: {
-            id: senderID
-        },
-        message: {
-            attachment: {
-                type: "template",
-                payload: {
-                    template_type: "button",
-                    text: "Allright! please fill the form, we will help you taking next steps",
-                    buttons: [{
-                        type: "web_url",
-                        url: "http://www.squareyards.com/contactus?key=help",
-                        title: "Fill form"
                     }]
                 }
             }
@@ -1084,7 +1061,7 @@ function sendPriceRangeButtons(recipientId, cityId, callback) {
 }
 
 // SEND BHK buttons
-function sendBHKButtons(recipientId, callback) {
+function sendBHKButtons(recipientId, cityId, callback) {
     console.log('Sending BHK buttons to ' + recipientId);
     var messageData = {
         recipient: {
@@ -1112,38 +1089,6 @@ function sendBHKButtons(recipientId, callback) {
                 content_type: "text",
                 title: "above 4bhk",
                 payload: "5 above"
-            }]
-        }
-    };
-    console.log("BHK message" + JSON.stringify(messageData));
-    callSendAPI(messageData, function(data) {});
-}
-
-// SEND BHK buttons
-function sendUnitTypeButtons(recipientId, callback) {
-    console.log('Sending BHK buttons to ' + recipientId);
-    var messageData = {
-        recipient: {
-            id: recipientId
-        },
-        message: {
-            text: "select a unit type ",
-            quick_replies: [{
-                content_type: "text",
-                title: "Independent floor",
-                payload: "Ind Floor"
-            }, {
-                content_type: "text",
-                title: "Apartment",
-                payload: "Apartment"
-            }, {
-                content_type: "text",
-                title: "Villa",
-                payload: "Villa"
-            }, {
-                content_type: "text",
-                title: "House",
-                payload: "House"
             }]
         }
     };
