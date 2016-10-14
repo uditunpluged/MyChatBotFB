@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var PAGE_ACCESS_TOKEN = 'EAAQ0rqoF1uABAIs4pYBVkZCySs4AHvF1SLtykll6B5NKdmx93mJmBWgO4qngbrFvxTLtFfwXyE5uHQtLUCTeJw8fQQAy36YFPua7YvgVECZBlvCVBDiDMViPeu6rLC3Jkp0ZBQ91ZARxAmSJHtPZBIr0ZBSYszGqNtvkfYTwQgZAAZDZD';
+var PAGE_ACCESS_TOKEN = 'EAAFLUVzAZBYsBAPXww1YJZCtpIMs2vjK8NvooPo31X0ZCZC52C2ed6jL7JKK80FX9nZAZBvavMymO9OzOKIM4R7l27w5Hvt5WU4prZCCCc61xxXrSuSoyr33RFyzC07IHEO2nBz8tTNiZBYdep3DVnxZC4ichFMJ13prUDO1uwHU2AwZDZD';
 var VALIDATION_TOKEN = 'phantasmist';
 var request = require('request');
 var firebase = require("firebase");
@@ -51,13 +51,6 @@ app.get('/webhook', function(req, res) {
     }
 });
 
-
-// usersMap.set("121", "");
-// usersMap.set("122", "");
-// var firstMap = new HashMap();
-// firstMap.set('cityId', "1");
-// usersMap.set("121", firstMap);
-// console.log(usersMap.get("122").search('cityId'));
 
 // SET GREETING AS WELL AS PERSISTENT MENU
 setGreetingText();
@@ -299,7 +292,7 @@ function getUserNameForPersonalization(uid) {
             firstName = obj.first_name;
             usersMap.set(uid, "");
             console.log("userName " + obj.first_name);
-            sendTextMessage(uid, "Hi " + firstName + " ! I am Nucleya, your personal advisor. \nI am here to help you find joy.", function(data) {
+            sendTextMessage(uid, "Hi " + firstName + " ! I am Squirrel, your personal advisor. \nI am here to help you find joy.", function(data) {
                 sendTypingOn(uid, function(data) {
                     var j = schedule.scheduleJob('*/10 * * * * *', function() {
                         sendCitySelectionButtons(uid, "which city are you looking to invest in ..", function(data) {
@@ -567,7 +560,7 @@ function setGreetingText() {
         setting_type: 'greeting',
         thread_state: 'existing_thread',
         greeting: {
-            text: "Welocome to CRI Kasauli. You can ask us queries. We are in developement phase."
+            text: "Welcome to Square Yards. You can ask us queries related to real estate."
         }
     };
     setThread(jsonObject);
@@ -752,19 +745,6 @@ function receivedMessage(event) {
                 //         sendCitySelectionButtons(senderID);
                 //     }
                 //     break;
-
-            case 'no':
-                sendEnquiryForm(senderID, function(data) {});
-                break;
-
-            case 'No':
-                sendEnquiryForm(senderID, function(data) {});
-                break;
-
-            case 'NO':
-                sendEnquiryForm(senderID, function(data) {});
-                break;
-
 
             default:
                 if (message.hasOwnProperty('quick_reply')) {
